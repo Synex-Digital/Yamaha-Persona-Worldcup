@@ -1,0 +1,63 @@
+Bike Color vs Weight Calculation
+
+Test case
+- Behavior: Weekend Explorer
+- Bike weights:
+  - Yamaha FZX = 50%
+  - Yamaha Aerox155 = 20%
+  - Yamaha XSR = 10%
+  - Yamaha FZS V4 = 10%
+  - Yamaha FZS Hybrid = 10%
+- Destination: Hills
+- Aspiration: Vitality and zest
+- Aspiration color: Red
+
+Observed result
+- Generated bike came out as Yamaha FZX
+- Generated bike color did not follow the expected red-capable Yamaha FZS V4
+
+Reason
+
+1. Current selector treats weight as the primary driver.
+- The backend chooses the bike in `src/lib/server/ride-persona.ts`.
+- Each candidate bike gets a score based mainly on:
+  - weight percentage
+  - distribution deficit
+  - small color-match bonus
+
+2. Color match is only a soft bonus, not a hard rule.
+- If a bike supports the aspiration color, it gets a bonus.
+- That bonus is small compared to a large weight gap.
+- So a 50% bike like Yamaha FZX can still beat a 10% bike like Yamaha FZS V4 even if FZS V4 supports red.
+
+3. In this scenario, Yamaha FZX is expected to win under the current formula.
+- Yamaha FZX starts with a strong advantage because of 50% weight.
+- Yamaha FZS V4 gets color relevance for red, but only as a small extra signal.
+- Since the system does not force color-compatible bikes to outrank heavier bikes, FZX can still be selected.
+
+4. Image generation does not guarantee exact bike color obedience.
+- After a final bike is selected, the model is prompted with the chosen bike and color.
+- The image model may still produce a nearby or different color because:
+  - face preservation is strongly prioritized
+  - no bike reference image is supplied
+  - text-only color instructions are not always followed exactly
+
+What this means
+- The result is not random.
+- The current system is behaving according to its present design.
+- Weight has higher importance than color compatibility.
+- Color influences selection, but does not override priority.
+
+Why Yamaha FZS V4 was not chosen
+- Yamaha FZS V4 has a valid red-family color: Majesty Red
+- But its configured weight is only 10%
+- Yamaha FZX has 50%
+- Because the current logic uses color as a bonus instead of a stronger filter or score multiplier, the higher-weight FZX remains more likely to win
+
+Short conclusion
+- Current rule:
+  - weight first
+  - color second
+- Therefore:
+  - red availability in Yamaha FZS V4 does not automatically make it the selected bike
+  - Yamaha FZX can still be selected because its priority is much higher

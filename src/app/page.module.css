@@ -1,0 +1,124 @@
+.card {
+  background: rgba(20, 20, 22, 0.4);
+  backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+  z-index: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, transparent, var(--yamaha-blue), transparent);
+}
+
+.logo {
+  display: block;
+  margin: 0 auto 32px;
+  width: 120px;
+}
+
+.landingContent {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.badge {
+  background: rgba(0, 35, 255, 0.1);
+  color: var(--yamaha-blue);
+  padding: 6px 16px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  margin-bottom: 24px;
+  border: 1px solid rgba(0, 35, 255, 0.2);
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: 42px;
+  text-align: center;
+  margin-bottom: 16px;
+  font-weight: 800;
+  line-height: 1.1;
+  background: linear-gradient(180deg, #fff 0%, #aaa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  max-width: 14ch;
+}
+
+.subtitle {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 18px;
+  margin-bottom: 48px;
+  line-height: 1.6;
+  max-width: 450px;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 30px;
+  }
+  .subtitle {
+    font-size: 16px;
+  }
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.error {
+  color: #ff4d4d;
+  font-size: 13px;
+  margin-bottom: 16px;
+  text-align: center;
+  background: rgba(255, 77, 77, 0.1);
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.otpContainer {
+  text-align: center;
+}
+
+.resendBtn {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-top: 16px;
+  text-decoration: underline;
+}
+
+.resendBtn:hover {
+  color: white;
+}

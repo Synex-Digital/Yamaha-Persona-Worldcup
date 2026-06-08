@@ -1,0 +1,98 @@
+
+> yamaha-test@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.107:3000
+- Environments: .env.local
+✓ Ready in 215ms
+
+ GET /thank-you 200 in 309ms (next.js: 140ms, application-code: 169ms)
+ GET /thank-you 200 in 126ms (next.js: 12ms, application-code: 114ms)
+ GET /admin/settings 200 in 151ms (next.js: 71ms, application-code: 80ms)
+ GET /api/admin/auth/me 200 in 119ms (next.js: 87ms, application-code: 32ms)
+ GET /api/admin/settings 200 in 172ms (next.js: 66ms, application-code: 106ms)
+ GET /api/admin/settings 200 in 7ms (next.js: 1453µs, application-code: 5ms)
+ GET / 307 in 138ms (next.js: 56ms, application-code: 83ms)
+ GET /thank-you 200 in 51ms (next.js: 2ms, application-code: 49ms)
+ PUT /api/admin/settings 200 in 123ms (next.js: 29ms, application-code: 94ms)
+ GET /thank-you 200 in 51ms (next.js: 7ms, application-code: 44ms)
+ GET / 200 in 61ms (next.js: 14ms, application-code: 47ms)
+ PUT /api/admin/settings 200 in 36ms (next.js: 7ms, application-code: 28ms)
+ GET / 307 in 54ms (next.js: 4ms, application-code: 51ms)
+ GET /thank-you 200 in 27ms (next.js: 4ms, application-code: 23ms)
+ GET /thank-you 200 in 74ms (next.js: 18ms, application-code: 57ms)
+ GET / 307 in 96ms (next.js: 6ms, application-code: 89ms)
+ GET /thank-you 200 in 40ms (next.js: 6ms, application-code: 34ms)
+ PUT /api/admin/settings 200 in 128ms (next.js: 23ms, application-code: 105ms)
+ GET / 200 in 56ms (next.js: 6ms, application-code: 51ms)
+ POST /api/auth/otp/send 200 in 262ms (next.js: 177ms, application-code: 84ms)
+ GET /quiz 200 in 55ms (next.js: 35ms, application-code: 20ms)
+ GET /api/campaign-status 200 in 62ms (next.js: 45ms, application-code: 17ms)
+ GET /api/campaign-status 200 in 93ms (next.js: 54ms, application-code: 39ms)
+ GET /api/quiz/questions?lang=en 200 in 67ms (next.js: 40ms, application-code: 27ms)
+ GET /api/quiz/questions?lang=en 200 in 8ms (next.js: 1169µs, application-code: 6ms)
+ POST /api/quiz/submit 200 in 70ms (next.js: 58ms, application-code: 12ms)
+ GET /upload 200 in 72ms (next.js: 31ms, application-code: 41ms)
+ GET /api/campaign-status 200 in 12ms (next.js: 6ms, application-code: 5ms)
+ GET /api/campaign-status 200 in 13ms (next.js: 6ms, application-code: 7ms)
+ GET /api/generate?requestId=cd16c51577d741dbb7bad35e74f84a98 200 in 131ms (next.js: 114ms, application-code: 17ms)
+[api/generate] form-data-parsed at 5ms
+[api/generate] auth-verified at 13ms
+[api/generate] rate-limit-checked at 35ms
+[api/generate] photo-encoded at 36ms
+[api/generate] persona-parsed at 36ms
+[api/generate] bike-selected at 47ms
+[api/generate] user-profile-loaded at 49ms
+[api/generate] generation-reserved at 57ms
+[api/generate] Generating persona copy and image...
+[generateCinematicImage] starting request {
+  model: 'gemini-3.1-flash-image-preview',
+  userMimeType: 'image/jpeg',
+  hasBikeImage: false,
+  bikeMimeType: 'image/jpeg',
+  promptLength: 2158,
+  referenceImageCopies: 3,
+  referenceImageReason: 'intentional face-match boost',
+  userBase64Chars: 178640
+}
+[generateCinematicImage] completed {
+  attempt: 1,
+  attemptMs: 18436,
+  totalMs: 18440,
+  outputMimeType: 'image/jpeg',
+  outputBase64Chars: 1054684
+}
+[api/generate] Uploading generated image to S3...
+[api/generate] s3-uploaded at 26571ms
+[api/generate] Saving generation record to database with status: completed
+[api/generate] db-saved at 26580ms
+[api/generate] cookie-cleared at 26580ms
+[api/generate] completed {
+  totalMs: 26581,
+  checkpoints: {
+    'form-data-parsed': 5,
+    'auth-verified': 13,
+    'rate-limit-checked': 35,
+    'photo-encoded': 36,
+    'persona-parsed': 36,
+    'bike-selected': 47,
+    'user-profile-loaded': 49,
+    'generation-reserved': 57,
+    's3-uploaded': 26571,
+    'db-saved': 26580,
+    'cookie-cleared': 26580
+  },
+  status: 'completed'
+}
+ POST /api/generate 200 in 26.6s (next.js: 1661µs, application-code: 26.6s)
+ GET /result/cd16c51577d741dbb7bad35e74f84a98 200 in 1215ms (next.js: 1169ms, application-code: 46ms)
+ GET / 200 in 95ms (next.js: 11ms, application-code: 84ms)
+ PUT /api/admin/settings 200 in 46ms (next.js: 14ms, application-code: 31ms)
+ GET /result/cd16c51577d741dbb7bad35e74f84a98 200 in 72ms (next.js: 9ms, application-code: 63ms)
+ GET /result/cd16c51577d741dbb7bad35e74f84a98 200 in 58ms (next.js: 10ms, application-code: 48ms)
+ GET / 307 in 74ms (next.js: 9ms, application-code: 66ms)
+ GET /thank-you 200 in 26ms (next.js: 2ms, application-code: 24ms)
+✓ Compiled in 484ms
+ GET /thank-you 200 in 124ms (next.js: 60ms, application-code: 64ms)
