@@ -1,44 +1,100 @@
 import { GoogleGenAI } from '@google/genai';
 
-const getClient = () => {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
+const getApiKeys = (): string[] => {
+  const rawKey = process.env.GEMINI_API_KEY;
+  if (!rawKey) {
     throw new Error('GEMINI_API_KEY is not set');
   }
-  return new GoogleGenAI({ apiKey });
+  return rawKey.split(',').map(key => key.trim()).filter(Boolean);
 };
 
-export async function generatePersonaCopy(personaTitle: string, bikeModel: string) {
-  const client = getClient();
+const getClient = () => {
+  const keys = getApiKeys();
+  return new GoogleGenAI({ apiKey: keys[0] });
+};
+
+export async function generatePersonaCopy(personaTitle: string, bikeModel: string): Promise<{
+  text: string;
+  usedKeyIndex?: number;
+  usage?: {
+    promptTokenCount: number;
+    candidatesTokenCount: number;
+  };
+}> {
+  const keys = getApiKeys();
   const model = process.env.AI_TEXT_MODEL || 'gemini-2.5-flash';
 
   const prompt = `Write a short, engaging, premium 2-sentence appreciation statement for a user whose riding personality is "${personaTitle}" and matched with the "${bikeModel}". Make it sound like a luxury automotive campaign.`;
 
-  let retries = 3;
+  let retries = keys.length * 2; // Retry up to twice per configured key
   let delay = 1000;
   
+  // Randomize start key index to balance concurrency load
+  let currentKeyIndex = Math.floor(Math.random() * keys.length);
+  
   while (retries > 0) {
+    const apiKey = keys[currentKeyIndex];
+    const client = new GoogleGenAI({ apiKey });
+    const attempt = keys.length * 2 - retries + 1;
+    
     try {
       const response = await client.models.generateContent({
         model,
         contents: prompt,
+        config: {
+          thinkingConfig: {
+            thinkingBudget: 0,
+          },
+        },
       });
-      return response.text;
+
+      console.log('[generatePersonaCopy] completed', {
+        attempt,
+        model,
+        usedKeyIndex: currentKeyIndex,
+      });
+
+      return {
+        text: response.text || '',
+        usedKeyIndex: currentKeyIndex,
+        usage: response.usageMetadata ? {
+          promptTokenCount: response.usageMetadata.promptTokenCount || 0,
+          candidatesTokenCount: response.usageMetadata.candidatesTokenCount || 0
+        } : undefined
+      };
     } catch (error: any) {
+      const failedKeyIndex = currentKeyIndex;
+      currentKeyIndex = (currentKeyIndex + 1) % keys.length; // Rotate key
+
       if (error.status === 503 && retries > 1) {
-        console.warn(`Gemini 503 error. Retrying in ${delay}ms...`);
+        console.warn(`[generatePersonaCopy] Gemini 503 error on key index ${failedKeyIndex}. Retrying key index ${currentKeyIndex} in ${delay}ms...`, {
+          attempt,
+          retryInMs: delay,
+          error: error.message || error,
+          status: error.status
+        });
         await new Promise(res => setTimeout(res, delay));
         retries--;
         delay *= 2;
       } else {
-        // Fallback text if the API completely fails
-        console.error('Gemini text generation failed after retries:', error);
-        return `Experience the thrill of the ride. You and the ${bikeModel} are a perfect match.`;
+        console.warn(`[generatePersonaCopy] API error on key index ${failedKeyIndex}. Retrying key index ${currentKeyIndex} immediately...`, {
+          attempt,
+          error: error.message || error,
+          status: error.status,
+          retriesLeft: retries - 1
+        });
+        if (retries > 1) {
+          retries--;
+          continue; // Try next key immediately without delay multiplier
+        }
+        break;
       }
     }
   }
-  
-  return `Experience the thrill of the ride. You and the ${bikeModel} are a perfect match.`;
+
+  return {
+    text: `Experience the thrill of the ride. You and the ${bikeModel} are a perfect match.`
+  };
 }
 
 const bikeImageCache = new Map<string, { base64: string, mimeType: string }>();
@@ -80,38 +136,51 @@ export async function generateCinematicImage(
   userMimeType: string,
   bikeBase64Image: string | null,
   bikeMimeType: string | null,
-  prompt: string
-) {
-  getClient();
+  imagePrompt: string
+): Promise<{
+  imageUrl: string;
+  usedKeyIndex?: number;
+  usage?: {
+    promptTokenCount: number;
+    candidatesTokenCount: number;
+  };
+}> {
+  const keys = getApiKeys();
   const model = process.env.AI_IMAGE_MODEL || 'gemini-3.1-flash-image-preview';
 
-  let retries = 3;
+  let retries = keys.length * 2; // Retry up to twice per configured key
   let delay = 2000;
   const startedAt = Date.now();
   const referenceImageCopies = 3;
+
+  // Randomize start key index to balance concurrency load
+  let currentKeyIndex = Math.floor(Math.random() * keys.length);
 
   console.log('[generateCinematicImage] starting request', {
     model,
     userMimeType: userMimeType || 'image/jpeg',
     hasBikeImage: !!bikeBase64Image,
     bikeMimeType: bikeMimeType || 'image/jpeg',
-    promptLength: prompt.length,
+    imagePromptLength: imagePrompt.length,
     referenceImageCopies,
     referenceImageReason: 'intentional face-match boost',
     userBase64Chars: userBase64Image.length,
+    totalKeys: keys.length,
+    startingKeyIndex: currentKeyIndex,
   });
 
+  const totalAttempts = retries;
+
   while (retries > 0) {
+    const apiKey = keys[currentKeyIndex];
+    const attempt = totalAttempts - retries + 1;
+    const attemptStartedAt = Date.now();
     try {
-      const attempt = 4 - retries;
-      const attemptStartedAt = Date.now();
-      const apiKey = process.env.GEMINI_API_KEY;
-      
-      // Expand the prompt to instruct Gemini to align the vehicle design with the visual reference
-      let enhancedPrompt = prompt;
+      let enhancedPrompt = imagePrompt;
+
       if (bikeBase64Image) {
         enhancedPrompt = [
-          prompt,
+          enhancedPrompt,
           'A visual reference of the exact motorcycle is supplied in the input images.',
           'Rely heavily on this motorcycle reference image to accurately reproduce the physical shape, headlights, graphics, decals, chassis layout, and body geometry of the vehicle in the final scene.',
           'Do not draw generic motorcycle shapes; preserve the exact design from the reference.'
@@ -176,22 +245,39 @@ export async function generateCinematicImage(
         throw new Error("Gemini image response did not include any content parts.");
       }
 
+      let imageUrl = '';
+
       for (const part of resParts) {
-        const base64Out = part?.inlineData?.data;
-        const outMimeType = part?.inlineData?.mimeType || "image/png";
-        if (typeof base64Out === "string" && base64Out.length > 0) {
-          console.log('[generateCinematicImage] completed', {
-            attempt,
-            attemptMs: Date.now() - attemptStartedAt,
-            totalMs: Date.now() - startedAt,
-            outputMimeType: outMimeType,
-            outputBase64Chars: base64Out.length,
-          });
-          return `data:${outMimeType};base64,${base64Out}`;
+        if (part?.inlineData?.data) {
+          const base64Out = part.inlineData.data;
+          const outMimeType = part.inlineData.mimeType || "image/png";
+          if (typeof base64Out === "string" && base64Out.length > 0) {
+            imageUrl = `data:${outMimeType};base64,${base64Out}`;
+            break;
+          }
         }
       }
 
-      throw new Error('No image payload found in response');
+      if (!imageUrl) {
+        throw new Error('No image payload found in response');
+      }
+
+      console.log('[generateCinematicImage] completed', {
+        attempt,
+        attemptMs: Date.now() - attemptStartedAt,
+        totalMs: Date.now() - startedAt,
+        outputBase64Chars: imageUrl.length,
+        usedKeyIndex: currentKeyIndex,
+      });
+
+      return {
+        imageUrl,
+        usedKeyIndex: currentKeyIndex,
+        usage: data.usageMetadata ? {
+          promptTokenCount: data.usageMetadata.promptTokenCount || 0,
+          candidatesTokenCount: data.usageMetadata.candidatesTokenCount || 0
+        } : undefined
+      };
     } catch (err: any) {
       // Catch transient errors: 503, 429, network timeout, headers timeout, or direct fetch failures
       const isTransient = 
@@ -201,9 +287,12 @@ export async function generateCinematicImage(
         err.code === 'UND_ERR_HEADERS_TIMEOUT' ||
         err.message?.toLowerCase().includes('fetch failed');
 
+      // Rotate to the next API key in the list
+      const failedKeyIndex = currentKeyIndex;
+      currentKeyIndex = (currentKeyIndex + 1) % keys.length;
+
       if (isTransient && retries > 1) {
-        const attempt = 4 - retries;
-        console.warn('[generateCinematicImage] Gemini transient error detected, retrying...', {
+        console.warn(`[generateCinematicImage] Gemini transient error detected on key index ${failedKeyIndex}. Retrying with key index ${currentKeyIndex} in ${delay}ms...`, {
           attempt,
           retryInMs: delay,
           elapsedMs: Date.now() - startedAt,
@@ -214,11 +303,17 @@ export async function generateCinematicImage(
         retries--;
         delay *= 2;
       } else {
-        console.error('[generateCinematicImage] failed permanently', {
+        console.error(`[generateCinematicImage] permanent or final failure on key index ${failedKeyIndex}`, {
           elapsedMs: Date.now() - startedAt,
           error: err.message || err,
           status: err.status,
+          retriesLeft: retries - 1
         });
+        if (retries > 1) {
+          console.warn(`[generateCinematicImage] Retrying next key index ${currentKeyIndex} immediately due to error...`);
+          retries--;
+          continue; // Try next key immediately without delay multiplier
+        }
         throw err;
       }
     }

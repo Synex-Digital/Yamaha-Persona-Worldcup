@@ -263,25 +263,28 @@ export async function POST(req: Request) {
     let generatedImageUrl = null;
     let generationStatus = 'completed';
 
-    // 1. Generate the appreciation text
+    // 1. Generate premium appreciation statement first using gemini-2.5-flash
     try {
-      const generatedCopy = await generatePersonaCopy(personaSummary, bikeModel);
-      if (generatedCopy) {
-        personaCopy = generatedCopy;
+      console.log('[api/generate] Generating premium appreciation statement...');
+      const generatedResult = await generatePersonaCopy(personaSummary, bikeModel);
+      if (generatedResult?.text) {
+        personaCopy = generatedResult.text.trim();
       }
     } catch (textError) {
-      console.error('Persona text generation failed:', textError);
+      console.error('[api/generate] Persona text generation failed:', textError);
     }
 
-    // 2. Generate the cinematic face-matched image
+    // 2. Generate the cinematic face-matched portrait
     try {
-      generatedImageUrl = await generateCinematicImage(
+      console.log('[api/generate] Generating cinematic image...');
+      const result = await generateCinematicImage(
         base64Image,
         mimeType,
         bikeRef?.base64 || null,
         bikeRef?.mimeType || null,
         finalPrompt
       );
+      generatedImageUrl = result.imageUrl;
     } catch (aiError: any) {
       console.error('Gemini Image Generation Failed. Triggering premium fallback card...', aiError);
       generationStatus = 'failed';
