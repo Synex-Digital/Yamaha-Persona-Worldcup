@@ -63,7 +63,7 @@
 .progressBarContainer {
   width: 100%;
   height: 4px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--btn-inactive-bg);
   margin-bottom: 48px;
   position: relative;
   border-radius: 100px;
@@ -99,8 +99,8 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-option-card);
+  border: 1px solid var(--border-option-card);
   border-radius: 12px;
   padding: 16px;
   text-align: left;
@@ -111,7 +111,7 @@
 
 .optionCard:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-option-hover);
 }
 
 .optionCard:active {
@@ -128,7 +128,7 @@
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-option-hover);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -178,9 +178,9 @@
 .nextButton {
   width: auto;
   min-width: 200px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.4);
+  background: var(--btn-inactive-bg);
+  border: 1px solid var(--btn-inactive-border);
+  color: var(--btn-inactive-text);
   padding: 18px 48px;
   border-radius: 100px;
   font-size: 18px;
@@ -192,16 +192,16 @@
 }
 
 .nextButton.active {
-  background: white;
-  color: black;
+  background: var(--btn-active-bg);
+  color: var(--btn-active-text);
   opacity: 1;
   cursor: pointer;
-  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 30px var(--btn-active-shadow);
 }
 
 .nextButton.active:hover {
   transform: translateY(-4px) scale(1.05);
-  box-shadow: 0 15px 40px rgba(255, 255, 255, 0.3);
+  box-shadow: 0 15px 40px var(--btn-active-shadow);
 }
 .nextButton.active:active {
   transform: scale(0.98);

@@ -4,6 +4,7 @@ import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import { LanguageProvider } from "@/components/i18n/LanguageProvider";
 import { getServerLanguage } from "@/lib/i18n/server";
 import { DEFAULT_OG_IMAGE, SITE_NAME, getMetadataBase } from "@/lib/seo";
+import { getAppSetting } from "@/lib/server/app-settings";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -62,12 +63,14 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const initialLanguage = await getServerLanguage();
+  const themeMode = await getAppSetting("theme_mode");
 
   return (
     <html
       lang={initialLanguage}
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} app-root`}
+      data-theme={themeMode}
     >
       <body className="app-body">
         <LanguageProvider initialLanguage={initialLanguage}>

@@ -8,6 +8,112 @@
   --text-primary: #ffffff;
   --text-secondary: #a0a0a0;
   --accent: var(--yamaha-blue);
+  
+  /* Card Styles */
+  --bg-card: rgba(20, 20, 22, 0.4);
+  --border-card: rgba(255, 255, 255, 0.08);
+  --shadow-card: 0 40px 100px rgba(0, 0, 0, 0.6);
+  
+  /* Quiz Options */
+  --bg-option-card: rgba(255, 255, 255, 0.03);
+  --border-option-card: rgba(255, 255, 255, 0.08);
+  --bg-option-hover: rgba(255, 255, 255, 0.05);
+  
+  /* Next Button */
+  --btn-inactive-bg: rgba(255, 255, 255, 0.1);
+  --btn-inactive-border: rgba(255, 255, 255, 0.1);
+  --btn-inactive-text: rgba(255, 255, 255, 0.4);
+  --btn-active-bg: #ffffff;
+  --btn-active-text: #000000;
+  --btn-active-shadow: rgba(255, 255, 255, 0.2);
+  
+  /* Titles & Subtitles */
+  --text-title: linear-gradient(180deg, #ffffff 0%, #aaaaaa 100%);
+  --text-subtitle: rgba(255, 255, 255, 0.7);
+  
+  /* Upload Box & skeleton shimmer */
+  --border-upload: rgba(255, 255, 255, 0.2);
+  --bg-upload: rgba(20, 20, 22, 0.5);
+  --shimmer-color-1: rgba(255, 255, 255, 0.05);
+  --shimmer-color-2: rgba(255, 255, 255, 0.1);
+  --bg-retry: rgba(255, 255, 255, 0.06);
+  --border-retry: rgba(255, 255, 255, 0.14);
+  --bg-retry-hover: rgba(255, 255, 255, 0.1);
+  
+  /* Thank You page eyebrow/panel overrides */
+  --border-panel: rgba(255, 255, 255, 0.12);
+  --bg-panel-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  --bg-panel-solid: rgba(20, 20, 22, 0.82);
+  --shadow-panel: 0 24px 60px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --radial-panel-1: rgba(0, 35, 255, 0.24);
+  --radial-panel-2: rgba(230, 0, 0, 0.2);
+  --bg-eyebrow: rgba(255, 255, 255, 0.08);
+  --text-eyebrow: rgba(255, 255, 255, 0.86);
+  --text-message: rgba(255, 255, 255, 0.74);
+}
+
+[data-theme='light'] {
+  --bg-dark: #f0f2f5;
+  --bg-surface: #ffffff;
+  --text-primary: #1c1c1e;
+  --text-secondary: #6e6e73;
+  
+  /* Card Styles */
+  --bg-card: rgba(255, 255, 255, 0.75);
+  --border-card: rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 40px 100px rgba(0, 0, 0, 0.08);
+  
+  /* Quiz Options */
+  --bg-option-card: rgba(0, 0, 0, 0.02);
+  --border-option-card: rgba(0, 0, 0, 0.06);
+  --bg-option-hover: rgba(0, 0, 0, 0.04);
+  
+  /* Next Button */
+  --btn-inactive-bg: rgba(0, 0, 0, 0.05);
+  --btn-inactive-border: rgba(0, 0, 0, 0.05);
+  --btn-inactive-text: rgba(0, 0, 0, 0.25);
+  --btn-active-bg: #1c1c1e;
+  --btn-active-text: #ffffff;
+  --btn-active-shadow: rgba(0, 0, 0, 0.1);
+  
+  /* Titles & Subtitles */
+  --text-title: linear-gradient(180deg, #1c1c1e 0%, #6e6e73 100%);
+  --text-subtitle: rgba(28, 28, 30, 0.8);
+  
+  /* Upload Box & skeleton shimmer */
+  --border-upload: rgba(0, 0, 0, 0.15);
+  --bg-upload: rgba(255, 255, 255, 0.8);
+  --shimmer-color-1: rgba(0, 0, 0, 0.03);
+  --shimmer-color-2: rgba(0, 0, 0, 0.06);
+  --bg-retry: rgba(0, 0, 0, 0.04);
+  --border-retry: rgba(0, 0, 0, 0.08);
+  --bg-retry-hover: rgba(0, 0, 0, 0.08);
+  
+  /* Thank You page eyebrow/panel overrides */
+  --border-panel: rgba(0, 0, 0, 0.08);
+  --bg-panel-gradient: linear-gradient(180deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.01));
+  --bg-panel-solid: rgba(255, 255, 255, 0.9);
+  --shadow-panel: 0 24px 60px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  --radial-panel-1: rgba(0, 35, 255, 0.06);
+  --radial-panel-2: rgba(230, 0, 0, 0.04);
+  --bg-eyebrow: rgba(0, 0, 0, 0.04);
+  --text-eyebrow: rgba(0, 0, 0, 0.7);
+  --text-message: rgba(28, 28, 30, 0.86);
+}
+
+[data-theme='light'] body::before {
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(0, 35, 255, 0.08) 0px, transparent 60%),
+    radial-gradient(at 100% 100%, rgba(0, 80, 255, 0.06) 0px, transparent 60%),
+    radial-gradient(at 50% 50%, rgba(0, 20, 255, 0.04) 0px, transparent 70%);
+  opacity: 0.5;
+}
+
+[data-theme='light'] body::after {
+  background: 
+    linear-gradient(180deg, rgba(240, 242, 245, 0) 0%, rgba(240, 242, 245, 0.8) 100%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3%3Cfilter id='noiseFilter'%3%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3%3C/filter%3%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3%3C/svg%3");
+  opacity: 0.04;
 }
 
 * {

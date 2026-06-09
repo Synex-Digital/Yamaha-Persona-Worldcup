@@ -87,9 +87,9 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: white;
+  background: var(--bg-retry);
+  border: 1px solid var(--border-retry);
+  color: var(--text-primary);
   padding: 16px;
   border-radius: 12px;
   font-size: 16px;
@@ -100,9 +100,9 @@
 }
 
 .actionBtn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-retry-hover);
   transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: var(--border-retry);
 }
 
 .actionBtn:active {
@@ -155,11 +155,11 @@
   bottom: calc(100% + 8px);
   left: 0;
   width: 100%;
-  background: #111;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-card);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
   z-index: 100;
@@ -179,8 +179,8 @@
   padding: 16px;
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  color: white;
+  border-bottom: 1px solid var(--border-card);
+  color: var(--text-primary);
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
@@ -193,7 +193,7 @@
 }
 
 .shareDropdownBtn:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--bg-option-hover);
 }
 
 @media (max-width: 768px) {

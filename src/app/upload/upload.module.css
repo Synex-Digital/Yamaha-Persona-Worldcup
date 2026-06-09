@@ -7,13 +7,13 @@
 }
 
 .uploadBox {
-  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border: 2px dashed var(--border-upload);
   border-radius: 16px;
   padding: 40px 20px;
   margin: 32px 0;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: rgba(20, 20, 22, 0.5);
+  background: var(--bg-upload);
   position: relative;
   overflow: hidden;
 }
@@ -61,9 +61,9 @@
   aspect-ratio: 4/5;
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.05) 25%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0.05) 75%
+    var(--shimmer-color-1) 25%,
+    var(--shimmer-color-2) 50%,
+    var(--shimmer-color-1) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 2s infinite linear;
@@ -91,7 +91,7 @@
   content: '';
   width: 40px;
   height: 40px;
-  border: 3px solid rgba(255, 255, 255, 0.2);
+  border: 3px solid var(--shimmer-color-2);
   border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -113,8 +113,8 @@
 .retryButton {
   width: 100%;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-retry);
+  background: var(--bg-retry);
   color: var(--text-primary);
   padding: 15px 20px;
   font-size: 15px;
@@ -123,7 +123,7 @@
 }
 
 .retryButton:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.22);
+  background: var(--bg-retry-hover);
+  border-color: var(--border-retry);
   transform: translateY(-1px);
 }

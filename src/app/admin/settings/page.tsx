@@ -126,6 +126,25 @@ export default function SettingsPage() {
               {t.admin.settings.campaignCompleteHelp}
             </p>
           </div>
+
+          <div>
+            <label className={styles.statLabel}>{t.admin.settings.themeMode}</label>
+            <button
+              type="button"
+              className={`${styles.toggleButton} ${settings.theme_mode === 'light' ? styles.toggleButtonActive : ''}`}
+              onClick={() => setSettings({
+                ...settings,
+                theme_mode: settings.theme_mode === 'light' ? 'dark' : 'light'
+              })}
+              aria-pressed={settings.theme_mode === 'light'}
+            >
+              <span>{settings.theme_mode === 'light' ? t.admin.settings.themeDay : t.admin.settings.themeNight}</span>
+              <span className={`${styles.toggleKnob} ${settings.theme_mode === 'light' ? styles.toggleKnobActive : ''}`} />
+            </button>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', marginTop: '4px' }}>
+              {t.admin.settings.themeHelp}
+            </p>
+          </div>
           
           <div style={{ marginTop: '12px' }}>
             <button type="submit" className={styles.primaryBtn}>{t.admin.settings.saveConfigurations}</button>

@@ -54,6 +54,7 @@ export async function PUT(req: Request) {
         [disableQuestionId]
       );
     }
+    if (body.theme_mode !== undefined) await updateSetting('theme_mode', body.theme_mode);
 
     return NextResponse.json({ success: true });
   } catch (error) {

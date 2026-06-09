@@ -5,15 +5,13 @@
 .panel {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--border-panel);
   border-radius: 28px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
-    rgba(20, 20, 22, 0.82);
+    var(--bg-panel-gradient),
+    var(--bg-panel-solid);
   backdrop-filter: blur(18px);
-  box-shadow:
-    0 24px 60px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow-panel);
   padding: 40px 32px;
 }
 
@@ -22,8 +20,8 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at top left, rgba(0, 35, 255, 0.24), transparent 38%),
-    radial-gradient(circle at bottom right, rgba(230, 0, 0, 0.2), transparent 36%);
+    radial-gradient(circle at top left, var(--radial-panel-1), transparent 38%),
+    radial-gradient(circle at bottom right, var(--radial-panel-2), transparent 36%);
   pointer-events: none;
 }
 
@@ -43,8 +41,8 @@
   min-height: 34px;
   padding: 0 14px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.86);
+  background: var(--bg-eyebrow);
+  color: var(--text-eyebrow);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -60,7 +58,7 @@
 
 .message {
   max-width: 54ch;
-  color: rgba(255, 255, 255, 0.74);
+  color: var(--text-message);
   font-size: 16px;
   line-height: 1.7;
 }
