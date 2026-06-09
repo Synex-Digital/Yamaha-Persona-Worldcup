@@ -13,9 +13,14 @@ export default function Quiz() {
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<any[]>([]);
   const [selectedOption, setSelectedOption] = useState<number | string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    setSearchQuery('');
+  }, [currentQ]);
 
   useEffect(() => {
     async function checkCampaignStatus() {
@@ -166,6 +171,12 @@ export default function Quiz() {
 
   const question = questions[currentQ];
   const progress = ((currentQ + 1) / questions.length) * 100;
+  const isCompact = question?.options?.length > 15;
+  const filteredOptions = isCompact
+    ? question.options.filter((opt: any) =>
+        opt.title.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : question?.options || [];
 
   const getPremiumIcon = (iconName: string | undefined, isSelected: boolean) => {
     const color = isSelected ? "white" : "var(--text-secondary)";
@@ -250,21 +261,34 @@ export default function Quiz() {
       </div>
 
       <div className={styles.questionWrapper} key={currentQ}>
-        <div className={styles.optionsList}>
-          {question.options.map((opt: any) => {
+        {isCompact && (
+          <div className={styles.searchWrapper}>
+            <input
+              type="text"
+              placeholder={language === 'bn' ? 'দল খুঁজুন...' : 'Search country...'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={styles.searchInput}
+            />
+          </div>
+        )}
+        <div className={`${styles.optionsList} ${isCompact ? styles.compactGrid : ''}`}>
+          {filteredOptions.map((opt: any) => {
             const isSelected = selectedOption === opt.id;
             return (
               <button
                 key={opt.id}
-                className={`${styles.optionCard} ${isSelected ? styles.selected : ''}`}
+                className={`${styles.optionCard} ${isSelected ? styles.selected : ''} ${isCompact ? styles.compactCard : ''}`}
                 onClick={() => setSelectedOption(opt.id)}
               >
-                <div className={styles.iconWrapper}>
-                  {getPremiumIcon(opt.icon || '', isSelected)}
-                </div>
+                {!isCompact && (
+                  <div className={styles.iconWrapper}>
+                    {getPremiumIcon(opt.icon || '', isSelected)}
+                  </div>
+                )}
                 <div className={styles.optionTextContent}>
-                  <div className={styles.optionTitle}>{opt.title}</div>
-                  <div className={styles.optionDesc}>{opt.desc}</div>
+                  <div className={styles.optionTitle} style={{ textAlign: isCompact ? 'center' : 'left' }}>{opt.title}</div>
+                  {!isCompact && <div className={styles.optionDesc}>{opt.desc}</div>}
                 </div>
               </button>
             );

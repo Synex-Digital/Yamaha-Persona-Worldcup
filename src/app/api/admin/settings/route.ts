@@ -38,21 +38,36 @@ export async function PUT(req: Request) {
     if (max_monthly_generations !== undefined) await updateSetting('max_monthly_generations', max_monthly_generations);
     if (body.otp_enabled !== undefined) await updateSetting('otp_enabled', body.otp_enabled);
     if (body.campaign_completed !== undefined) await updateSetting('campaign_completed', body.campaign_completed);
-    if (body.eid_camp_enabled !== undefined) {
-      await updateSetting('eid_camp_enabled', body.eid_camp_enabled);
+    let eidVal = body.eid_camp_enabled;
+    let wcVal = body.worldcup_camp_enabled;
 
-      const isEnabled = body.eid_camp_enabled === true || body.eid_camp_enabled === 'true';
-      const enableQuestionId = isEnabled ? 4 : 2;
-      const disableQuestionId = isEnabled ? 2 : 4;
+    if (wcVal === 'true' || wcVal === true) {
+      eidVal = 'false';
+    } else if (eidVal === 'true' || eidVal === true) {
+      wcVal = 'false';
+    }
 
-      await query(
-        'UPDATE quiz_options SET is_active = TRUE WHERE question_id = ?',
-        [enableQuestionId]
-      );
-      await query(
-        'UPDATE quiz_options SET is_active = FALSE WHERE question_id = ?',
-        [disableQuestionId]
-      );
+    if (eidVal !== undefined) await updateSetting('eid_camp_enabled', eidVal);
+    if (wcVal !== undefined) await updateSetting('worldcup_camp_enabled', wcVal);
+
+    if (eidVal !== undefined || wcVal !== undefined) {
+      const isEidActive = eidVal === 'true' || eidVal === true;
+      const isWcActive = wcVal === 'true' || wcVal === true;
+
+      let activeQuestionId = 2; // Default Standard Destination
+      if (isWcActive) {
+        activeQuestionId = 5; // Worldcup
+      } else if (isEidActive) {
+        activeQuestionId = 4; // Eid
+      }
+
+      const allQuestionIds = [2, 4, 5];
+      for (const qId of allQuestionIds) {
+        await query(
+          'UPDATE quiz_options SET is_active = ? WHERE question_id = ?',
+          [qId === activeQuestionId ? 1 : 0, qId]
+        );
+      }
     }
     if (body.theme_mode !== undefined) await updateSetting('theme_mode', body.theme_mode);
 

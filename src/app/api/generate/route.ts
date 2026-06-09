@@ -144,6 +144,7 @@ export async function POST(req: Request) {
     const maxWeekly = getSetting('max_weekly_generations', 50);
     const maxMonthly = getSetting('max_monthly_generations', 100);
     const isEidCampEnabled = getBooleanSetting('eid_camp_enabled', false);
+    const isWorldcupCampEnabled = getBooleanSetting('worldcup_camp_enabled', false);
 
     const [dailyCountRes, weeklyCountRes, monthlyCountRes] = await Promise.all([
       query<any[]>('SELECT COUNT(*) as count FROM generations WHERE user_id = ? AND created_at > NOW() - INTERVAL 1 DAY', [userId]),
@@ -196,6 +197,8 @@ export async function POST(req: Request) {
       aspiration: aspirationTone,
       gender: userProfile?.gender || null,
       isEidCampEnabled,
+      isWorldcupCampEnabled,
+      destinationMeta: personaData.destination_meta,
     });
 
     const crypto = await import('crypto');

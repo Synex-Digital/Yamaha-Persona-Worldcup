@@ -8,7 +8,7 @@
 .sidebar {
   width: 260px;
   background: #0a0a0a;
-  border-right: 1px solid rgba(255,255,255,0.05);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
   padding: 32px 24px;
   display: flex;
   flex-direction: column;
@@ -32,7 +32,7 @@
   text-align: left;
   padding: 14px 16px;
   border-radius: 12px;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255, 255, 255, 0.6);
   margin-bottom: 4px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid transparent;
@@ -43,7 +43,7 @@
 }
 
 .navItem:hover {
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   color: white;
 }
 
@@ -66,6 +66,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  color: white;
 }
 
 .header h1 {
@@ -83,7 +84,7 @@
 
 .statCard {
   background: #0f0f0f;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 28px;
   border-radius: 16px;
   transition: transform 0.2s;
@@ -102,7 +103,7 @@
 }
 
 .statLabel {
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -111,7 +112,7 @@
 
 .card {
   background: #0f0f0f;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
   padding: 32px;
   margin-bottom: 32px;
@@ -127,20 +128,20 @@
 .table th {
   padding: 16px 20px;
   text-align: left;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
   font-weight: 600;
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .table td {
   padding: 20px;
   text-align: left;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   font-size: 14px;
-  color: rgba(255,255,255,0.9);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .table tr:last-child td {
@@ -148,7 +149,7 @@
 }
 
 .table tr:hover td {
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .formGrid {
@@ -158,11 +159,13 @@
   margin-bottom: 0;
 }
 
-.input, .select, .textarea {
+.input,
+.select,
+.textarea {
   width: 100%;
   padding: 14px 18px;
   background: #1a1a1a;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   color: white;
   font-size: 14px;
@@ -170,7 +173,9 @@
   font-family: inherit;
 }
 
-.input:focus, .select:focus, .textarea:focus {
+.input:focus,
+.select:focus,
+.textarea:focus {
   outline: none;
   border-color: #007aff;
   background: #222;
@@ -210,9 +215,9 @@
 }
 
 .secondaryBtn {
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   color: white;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 8px 16px;
   border-radius: 8px;
   font-weight: 500;
@@ -222,8 +227,8 @@
 }
 
 .secondaryBtn:hover {
-  background: rgba(255,255,255,0.1);
-  border-color: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .dangerBtn {
@@ -247,7 +252,7 @@
   width: 100%;
   padding: 14px 18px;
   background: #1a1a1a;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   color: white;
   font-size: 14px;
@@ -260,7 +265,7 @@
 }
 
 .toggleButton:hover {
-  border-color: rgba(255,255,255,0.2);
+  border-color: rgba(255, 255, 255, 0.2);
   background: #222;
 }
 
@@ -274,7 +279,7 @@
   width: 44px;
   height: 24px;
   border-radius: 999px;
-  background: rgba(255,255,255,0.18);
+  background: rgba(255, 255, 255, 0.18);
   position: relative;
   flex-shrink: 0;
   transition: background 0.2s;
@@ -326,7 +331,7 @@
   padding: 20px;
   background: #0a0a0a;
   border-radius: 16px;
-  border: 1px solid rgba(255,255,255,0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   max-height: 300px;
   overflow-y: auto;
 }
@@ -337,7 +342,7 @@
   gap: 12px;
   padding: 10px 14px;
   border-radius: 10px;
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid transparent;
   transition: all 0.2s;
   cursor: pointer;
@@ -345,7 +350,7 @@
 }
 
 .bikeItem:hover {
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .bikeItem.selected {
@@ -357,7 +362,7 @@
   width: 18px;
   height: 18px;
   border-radius: 6px;
-  border: 2px solid rgba(255,255,255,0.2);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -385,20 +390,20 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255, 255, 255, 0.5);
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 24px;
   padding: 8px 12px;
   border-radius: 10px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .backBtn:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
 }
 
@@ -408,33 +413,36 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(10px);
   display: flex;
-  align-items: flex-start; /* Ensure top is never cut off */
+  align-items: flex-start;
+  /* Ensure top is never cut off */
   justify-content: center;
   z-index: 10000;
-  padding: 5vh 20px; /* 5% from top */
+  padding: 5vh 20px;
+  /* 5% from top */
   overflow: hidden;
 }
 
 .modalContent {
   background: #0f0f0f;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 28px;
   width: 90%;
   max-width: 1100px;
-  height: 85vh; /* Fixed height for consistent look */
+  height: 85vh;
+  /* Fixed height for consistent look */
   display: flex;
   flex-direction: column;
   position: relative;
-  box-shadow: 0 40px 100px rgba(0,0,0,0.9);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.9);
   overflow: hidden;
 }
 
 .modalHeader {
   padding: 32px 40px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   flex-shrink: 0;
 }
 
@@ -449,8 +457,8 @@
   top: 32px;
   right: 32px;
   z-index: 20;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -478,7 +486,7 @@
 
 .genCard {
   background: #0f0f0f;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   overflow: hidden;
   transition: all 0.2s;
@@ -504,8 +512,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 24px;
-  border-top: 1px solid rgba(255,255,255,0.05);
-  color: rgba(255,255,255,0.4);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.4);
   font-size: 13px;
 }
 

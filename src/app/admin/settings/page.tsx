@@ -94,10 +94,14 @@ export default function SettingsPage() {
             <button
               type="button"
               className={`${styles.toggleButton} ${settings.eid_camp_enabled === 'true' ? styles.toggleButtonActive : ''}`}
-              onClick={() => setSettings({
-                ...settings,
-                eid_camp_enabled: settings.eid_camp_enabled === 'true' ? 'false' : 'true'
-              })}
+              onClick={() => {
+                const nextVal = settings.eid_camp_enabled === 'true' ? 'false' : 'true';
+                setSettings({
+                  ...settings,
+                  eid_camp_enabled: nextVal,
+                  worldcup_camp_enabled: nextVal === 'true' ? 'false' : settings.worldcup_camp_enabled
+                });
+              }}
               aria-pressed={settings.eid_camp_enabled === 'true'}
             >
               <span>{settings.eid_camp_enabled === 'true' ? t.admin.settings.eidCampOn : t.admin.settings.eidCampOff}</span>
@@ -105,6 +109,29 @@ export default function SettingsPage() {
             </button>
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', marginTop: '4px' }}>
               {t.admin.settings.eidCampHelp}
+            </p>
+          </div>
+
+          <div>
+            <label className={styles.statLabel}>{t.admin.settings.worldcupCampMode}</label>
+            <button
+              type="button"
+              className={`${styles.toggleButton} ${settings.worldcup_camp_enabled === 'true' ? styles.toggleButtonActive : ''}`}
+              onClick={() => {
+                const nextVal = settings.worldcup_camp_enabled === 'true' ? 'false' : 'true';
+                setSettings({
+                  ...settings,
+                  worldcup_camp_enabled: nextVal,
+                  eid_camp_enabled: nextVal === 'true' ? 'false' : settings.eid_camp_enabled
+                });
+              }}
+              aria-pressed={settings.worldcup_camp_enabled === 'true'}
+            >
+              <span>{settings.worldcup_camp_enabled === 'true' ? t.admin.settings.worldcupCampOn : t.admin.settings.worldcupCampOff}</span>
+              <span className={`${styles.toggleKnob} ${settings.worldcup_camp_enabled === 'true' ? styles.toggleKnobActive : ''}`} />
+            </button>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', marginTop: '4px' }}>
+              {t.admin.settings.worldcupCampHelp}
             </p>
           </div>
 

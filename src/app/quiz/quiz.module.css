@@ -90,6 +90,7 @@
   .optionsList {
     grid-template-columns: 1fr;
   }
+
   .questionTitle {
     font-size: 32px;
   }
@@ -148,21 +149,22 @@
   color: var(--text-primary);
 }
 
-.optionTextContent {
+/* .optionTextContent {
   flex: 1;
-}
+} */
 
 .optionTitle {
   font-size: 16px;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 4px;
+  /* margin-bottom: 4px; */
 }
 
 .optionDesc {
   font-size: 12px;
   color: var(--text-secondary);
   line-height: 1.3;
+  margin-top: 4px;
 }
 
 .optionCard.selected .optionTitle,
@@ -203,6 +205,7 @@
   transform: translateY(-4px) scale(1.05);
   box-shadow: 0 15px 40px var(--btn-active-shadow);
 }
+
 .nextButton.active:active {
   transform: scale(0.98);
 }
@@ -212,6 +215,52 @@
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.searchWrapper {
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+.searchInput {
+  width: 100%;
+  background: var(--bg-option-card);
+  border: 1px solid var(--border-option-card);
+  border-radius: 12px;
+  padding: 14px 20px;
+  color: var(--text-primary);
+  font-size: 16px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.searchInput:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(0, 35, 255, 0.2);
+}
+
+.compactGrid {
+  grid-template-columns: repeat(4, 1fr) !important;
+}
+
+.compactCard {
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 12px 8px !important;
+  min-height: 54px;
+}
+
+@media (max-width: 768px) {
+  .compactGrid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
 }

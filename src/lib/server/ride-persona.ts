@@ -171,7 +171,18 @@ function buildGenderGuidance(gender?: string | null) {
   return null;
 }
 
-function buildWardrobePrompt(gender?: string | null, isEidCampEnabled?: boolean) {
+function buildWardrobePrompt(
+  gender?: string | null,
+  isEidCampEnabled?: boolean,
+  isWorldcupCampEnabled?: boolean,
+  destinationMeta?: any
+) {
+  if (isWorldcupCampEnabled) {
+    const country = destinationMeta?.country || 'their favorite nation';
+    const jerseyColors = destinationMeta?.jersey_colors || 'national colors';
+    return `Wardrobe: premium sports fan attire: an official ${jerseyColors} jersey of ${country}, a matching ${country} themed fan scarf wrapped around the neck, dark blue denim jeans pants, and clean premium athletic sneakers. Clean, perfectly fitted, and camera-ready.`;
+  }
+
   if (!isEidCampEnabled) {
     return 'Wardrobe: premium Yamaha-inspired biker streetwear, polished, clean, and well-fitted.';
   }
@@ -341,15 +352,23 @@ export function buildImagePrompt(args: {
   aspiration: string;
   gender?: string | null;
   isEidCampEnabled?: boolean;
+  isWorldcupCampEnabled?: boolean;
+  destinationMeta?: any;
 }) {
   const destinationScene = args.destinationScene || 'a premium scenic road';
   const destinationMood = args.destinationMood || 'confident, premium, and cinematic';
   const aspiration = args.aspiration || 'signature rider energy';
   const selectedPose = selectRandomPose();
   const negativePromptBlock = buildNegativePromptBlock();
+
   const finalMood = buildFinalMood(destinationMood, aspiration);
   const genderGuidance = buildGenderGuidance(args.gender);
-  const wardrobePrompt = buildWardrobePrompt(args.gender, args.isEidCampEnabled);
+  const wardrobePrompt = buildWardrobePrompt(
+    args.gender,
+    args.isEidCampEnabled,
+    args.isWorldcupCampEnabled,
+    args.destinationMeta
+  );
 
   const isFzsV4 = args.bikeModel.toLowerCase().includes('fzs') && args.bikeModel.toLowerCase().includes('v4');
   const vehicleDetails = isFzsV4

@@ -6,6 +6,7 @@ export const DEFAULT_APP_SETTINGS = {
   max_monthly_generations: '100',
   otp_enabled: 'true',
   eid_camp_enabled: 'false',
+  worldcup_camp_enabled: 'false',
   campaign_completed: 'false',
   theme_mode: 'dark',
 } as const;
