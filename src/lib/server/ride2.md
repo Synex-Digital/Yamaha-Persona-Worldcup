@@ -30,7 +30,7 @@ interface CandidateBike extends QueryRow {
 }
 
 const FIXED_IDENTITY_BLOCK = [
-  'Create a cinematic lifestyle portrait of the exact person from the reference image.',
+  'Create a cinematice lifestyle portrait of the exact person from the reference image.',
   'Preserve exact facial identity, hairstyle, facial hair, age, and natural likeness.',
 ].join(' ');
 
@@ -70,7 +70,7 @@ const NEGATIVE_PROMPT_TERMS = [
   'extra limbs',
   'awkward hands',
   'unnatural posture',
-  'multiple people around the bike',
+  'multiple people',
   'duplicated body parts',
   'oversaturated colors',
   'poorly rendered helmet',
@@ -172,9 +172,12 @@ function buildGenderGuidance(gender?: string | null) {
   return null;
 }
 
-function buildWardrobePrompt(gender?: string | null, isEidCampEnabled?: boolean, isWorldcupCampEnabled?: boolean,
-  destinationMeta?: any) {
-
+function buildWardrobePrompt(
+  gender?: string | null,
+  isEidCampEnabled?: boolean,
+  isWorldcupCampEnabled?: boolean,
+  destinationMeta?: any
+) {
   if (isWorldcupCampEnabled) {
     const country = destinationMeta?.country || 'their favorite nation';
     const jerseyColors = destinationMeta?.jersey_colors || 'national colors';
@@ -360,7 +363,12 @@ export function buildImagePrompt(args: {
   const negativePromptBlock = buildNegativePromptBlock();
   const finalMood = buildFinalMood(destinationMood, aspiration);
   const genderGuidance = buildGenderGuidance(args.gender);
-  const wardrobePrompt = buildWardrobePrompt(args.gender, args.isEidCampEnabled, args.isWorldcupCampEnabled, args.destinationMeta);
+  const wardrobePrompt = buildWardrobePrompt(
+    args.gender,
+    args.isEidCampEnabled,
+    args.isWorldcupCampEnabled,
+    args.destinationMeta
+  );
 
   const isFzsV4 = args.bikeModel.toLowerCase().includes('fzs') && args.bikeModel.toLowerCase().includes('v4');
   const vehicleDetails = isFzsV4

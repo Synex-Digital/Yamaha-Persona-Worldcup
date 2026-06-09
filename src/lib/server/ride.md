@@ -30,7 +30,7 @@ interface CandidateBike extends QueryRow {
 }
 
 const FIXED_IDENTITY_BLOCK = [
-  'Create a cinematic lifestyle portrait of the exact person from the reference image.',
+  'Create a premium ultra-photorealistic lifestyle portrait of the exact person from the reference image.',
   'Preserve exact facial identity, hairstyle, facial hair, age, and natural likeness.',
 ].join(' ');
 
@@ -70,7 +70,6 @@ const NEGATIVE_PROMPT_TERMS = [
   'extra limbs',
   'awkward hands',
   'unnatural posture',
-  'multiple people around the bike',
   'duplicated body parts',
   'oversaturated colors',
   'poorly rendered helmet',
@@ -172,15 +171,7 @@ function buildGenderGuidance(gender?: string | null) {
   return null;
 }
 
-function buildWardrobePrompt(gender?: string | null, isEidCampEnabled?: boolean, isWorldcupCampEnabled?: boolean,
-  destinationMeta?: any) {
-
-  if (isWorldcupCampEnabled) {
-    const country = destinationMeta?.country || 'their favorite nation';
-    const jerseyColors = destinationMeta?.jersey_colors || 'national colors';
-    return `Wardrobe: ${jerseyColors} jersey of ${country}, optional fan scarf, dark denim jeans, premium sneakers. Clean and camera-ready.`;
-  }
-
+function buildWardrobePrompt(gender?: string | null, isEidCampEnabled?: boolean) {
   if (!isEidCampEnabled) {
     return 'Wardrobe: premium Yamaha-inspired biker streetwear, polished, clean, and well-fitted.';
   }
@@ -350,8 +341,6 @@ export function buildImagePrompt(args: {
   aspiration: string;
   gender?: string | null;
   isEidCampEnabled?: boolean;
-  isWorldcupCampEnabled?: boolean;
-  destinationMeta?: any;
 }) {
   const destinationScene = args.destinationScene || 'a premium scenic road';
   const destinationMood = args.destinationMood || 'confident, premium, and cinematic';
@@ -360,7 +349,7 @@ export function buildImagePrompt(args: {
   const negativePromptBlock = buildNegativePromptBlock();
   const finalMood = buildFinalMood(destinationMood, aspiration);
   const genderGuidance = buildGenderGuidance(args.gender);
-  const wardrobePrompt = buildWardrobePrompt(args.gender, args.isEidCampEnabled, args.isWorldcupCampEnabled, args.destinationMeta);
+  const wardrobePrompt = buildWardrobePrompt(args.gender, args.isEidCampEnabled);
 
   const isFzsV4 = args.bikeModel.toLowerCase().includes('fzs') && args.bikeModel.toLowerCase().includes('v4');
   const vehicleDetails = isFzsV4
@@ -373,8 +362,8 @@ export function buildImagePrompt(args: {
     `Gender guidance: ${genderGuidance}`,
     `Pose: ${selectedPose}`,
     `Vehicle: realistic ${args.bikeModel} in ${args.bikeColor}, ${vehicleDetails}`,
-    `Environment: ${destinationScene}`,
-    `Mood: ${finalMood}`,
+    `Environment: ${destinationScene}.`,
+    `Mood: ${finalMood}.`,
     wardrobePrompt,
     FIXED_REALISM_BLOCK,
     negativePromptBlock,

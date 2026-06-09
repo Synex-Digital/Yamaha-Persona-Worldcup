@@ -100,7 +100,7 @@ async function seedWorldCup() {
         stadium: c.stadium,
         personality: `Proud ${c.name} supporter, ${c.theme} football spirit.`,
         personality_bn: `গর্বিত ${c.name_bn} সমর্থক, ফুটবল উদ্দীপনা।`,
-        scene: `Outside ${c.stadium}, wet reflective ground, stadium floodlights. ${c.name} flag in the sky. Fan crowds in ${c.jersey} jerseys. ${c.theme} smoke and confetti. FIFA World Cup 2026 banners.`
+        scene: `Outside ${c.stadium}, damp pavement, soft stadium lighting. ${c.name} flag in the sky. blurred crowds in the distant background wearing ${c.jersey} jerseys. ${c.theme} confetti. festive banners.`
       };
 
       await connection.query(`

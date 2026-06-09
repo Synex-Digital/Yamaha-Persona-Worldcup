@@ -28,15 +28,15 @@ export async function generatePersonaCopy(personaTitle: string, bikeModel: strin
 
   let retries = keys.length * 2; // Retry up to twice per configured key
   let delay = 1000;
-  
+
   // Randomize start key index to balance concurrency load
   let currentKeyIndex = Math.floor(Math.random() * keys.length);
-  
+
   while (retries > 0) {
     const apiKey = keys[currentKeyIndex];
     const client = new GoogleGenAI({ apiKey });
     const attempt = keys.length * 2 - retries + 1;
-    
+
     try {
       const response = await client.models.generateContent({
         model,
@@ -105,23 +105,23 @@ const bikeImageCache = new Map<string, { base64: string, mimeType: string }>();
  */
 export async function getBikeImageBase64(url: string | null) {
   if (!url) return null;
-  
+
   if (bikeImageCache.has(url)) {
     console.log(`[getBikeImageBase64] Cache HIT for S3 URL: ${url}`);
     return bikeImageCache.get(url)!;
   }
-  
+
   try {
     console.log(`[getBikeImageBase64] Cache MISS. Fetching S3 URL: ${url}`);
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Failed to fetch bike reference image from S3: ${response.statusText}`);
     }
-    
+
     const arrayBuffer = await response.arrayBuffer();
     const base64 = Buffer.from(arrayBuffer).toString('base64');
     const mimeType = response.headers.get('content-type') || 'image/jpeg';
-    
+
     const cachedResult = { base64, mimeType };
     bikeImageCache.set(url, cachedResult);
     return cachedResult;
@@ -188,7 +188,7 @@ export async function generateCinematicImage(
       }
 
       const parts: any[] = [{ text: enhancedPrompt }];
-      
+
       // Push 3 copies of the user's portrait for face matching consistency
       for (let i = 0; i < referenceImageCopies; i++) {
         parts.push({
@@ -237,10 +237,10 @@ export async function generateCinematicImage(
       }
 
       const data = await response.json();
-      
+
       const candidate = data.candidates?.[0];
       const resParts = candidate?.content?.parts;
-      
+
       if (!Array.isArray(resParts)) {
         throw new Error("Gemini image response did not include any content parts.");
       }
@@ -280,9 +280,9 @@ export async function generateCinematicImage(
       };
     } catch (err: any) {
       // Catch transient errors: 503, 429, network timeout, headers timeout, or direct fetch failures
-      const isTransient = 
-        err.status === 503 || 
-        err.status === 429 || 
+      const isTransient =
+        err.status === 503 ||
+        err.status === 429 ||
         err.name === 'TimeoutError' ||
         err.code === 'UND_ERR_HEADERS_TIMEOUT' ||
         err.message?.toLowerCase().includes('fetch failed');
@@ -318,6 +318,6 @@ export async function generateCinematicImage(
       }
     }
   }
-  
+
   throw new Error('Gemini image generation failed after retries');
 }
