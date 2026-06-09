@@ -32,6 +32,7 @@ interface CandidateBike extends QueryRow {
 const FIXED_IDENTITY_BLOCK = [
   'Create a premium ultra-photorealistic lifestyle portrait of the exact person from the reference image.',
   'Preserve exact facial identity, hairstyle, facial hair, age, and natural likeness.',
+  'Neutral or calm facial expression. Mouth closed.',
 ].join(' ');
 
 const FIXED_COMPOSITION_BLOCK = [

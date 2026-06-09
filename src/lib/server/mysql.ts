@@ -12,7 +12,8 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '50'),
   queueLimit: 0,
-  multipleStatements: true // Needed for running schema.sql
+  multipleStatements: true, // Needed for running schema.sql
+  timezone: '+06:00', // Bangladesh Standard Time (BST)
 });
 
 /**

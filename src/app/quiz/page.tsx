@@ -20,6 +20,7 @@ export default function Quiz() {
 
   useEffect(() => {
     setSearchQuery('');
+    window.scrollTo(0, 0);
   }, [currentQ]);
 
   useEffect(() => {
