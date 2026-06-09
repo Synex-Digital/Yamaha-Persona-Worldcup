@@ -269,7 +269,7 @@ export default function QuizManagerPage() {
         <>
           <button onClick={() => { setSelectedQuestion(null); setQuizOptions([]); resetOptionForm(); }} className={styles.backBtn}><Icons.Back /> {t.admin.quiz.backToQuestions}</button>
           <div style={{ marginBottom: '32px' }}>
-            <h2 style={{ fontSize: '28px' }}>{selectedQuestion.question_text}</h2>
+            <h2 style={{ fontSize: '28px', color: 'white' }}>{selectedQuestion.question_text}</h2>
             <p style={{ color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', fontSize: '12px', letterSpacing: '1px', fontWeight: 700, marginTop: '4px' }}>{t.admin.quiz.type}: {selectedQuestion.question_type}</p>
           </div>
           <div className={styles.card}>

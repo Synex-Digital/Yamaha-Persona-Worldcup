@@ -35,9 +35,9 @@ const FIXED_IDENTITY_BLOCK = [
 ].join(' ');
 
 const FIXED_COMPOSITION_BLOCK = [
-  'Vertical 3:4 composition.',
+  'Vertical 3:4 composition. Single subject. Only one person visible.',
   'Full body visible.',
-  'Full motorcycle visible.',
+  'The entire motorcycle must be fully visible and placed clearly next to the subject, without being blocked, covered, or obscured by the subject\'s body.',
   'Face unobstructed.',
   'Helmet not worn.',
 ].join(' ');
@@ -47,11 +47,11 @@ const FIXED_REALISM_BLOCK = [
 ].join(' ');
 
 const POSE_OPTIONS = [
-  'Full-body standing beside the motorcycle, arms crossed, body angled toward the bike, head slightly turned away, confident presence.',
+  'Full-body standing beside the motorcycle, keeping the entire motorcycle fully visible next to the subject, arms crossed, body angled toward the bike, head slightly turned away, confident presence.',
   'Sitting sideways on the motorcycle seat, one foot on the ground, upper body turned slightly toward camera, one hand resting on or holding the helmet.',
-  'Standing beside the motorcycle, one hand adjusting the collar area, the other holding a helmet, calm cinematic confidence.',
+  'Standing beside the motorcycle with the entire motorcycle clearly visible next to the subject, one hand adjusting the collar area, the other holding a helmet, calm cinematic confidence.',
   'Sitting on the motorcycle, torso slightly forward, both forearms resting on a helmet near the tank or handlebar, relaxed editorial pose.',
-  'Walking beside the parked motorcycle, carrying a helmet in one hand, natural mid-step movement, cinematic travel mood.',
+  'Walking beside the parked motorcycle, showing the full motorcycle clearly visible next to the subject, carrying a helmet in one hand, natural mid-step movement, cinematic travel mood.',
 ] as const;
 
 const NEGATIVE_PROMPT_TERMS = [
@@ -70,7 +70,8 @@ const NEGATIVE_PROMPT_TERMS = [
   'extra limbs',
   'awkward hands',
   'unnatural posture',
-  'duplicated body parts',
+  'multiple people in foreground',
+  'duplicate faces',
   'oversaturated colors',
   'poorly rendered helmet',
   'floating objects',
@@ -375,6 +376,10 @@ export function buildImagePrompt(args: {
     ? 'The motorcycle must feature the authentic FZS V4 front face: a modern shield-shaped headlamp housing with a central LED projector lens and signature bracket-shaped LED Daytime Running Lights (DRLs) on the sides. The tank shrouds are sleek and solid body-colored, with no silver mesh vents. Do not render the older split-triangular headlight or mesh side vents of the FZS V3. Accurate proportions, clean frame geometry, realistic materials, and proper metallic reflections.'
     : 'with authentic model presence, accurate proportions, clean frame geometry, realistic materials, proper reflections, detailed mechanical parts, and high-quality motorcycle styling.';
 
+  const realismBlock = args.isWorldcupCampEnabled
+    ? 'Style: commercial motorcycle photography, deep depth of field, sharp background details with the stadium structure clearly visible in focus, natural lighting, realistic shadows, high-detail textures, realistic skin tones, and seamless face integration.'
+    : FIXED_REALISM_BLOCK;
+
   return [
     FIXED_IDENTITY_BLOCK,
     FIXED_COMPOSITION_BLOCK,
@@ -384,7 +389,7 @@ export function buildImagePrompt(args: {
     `Environment: ${destinationScene}.`,
     `Mood: ${finalMood}.`,
     wardrobePrompt,
-    FIXED_REALISM_BLOCK,
+    realismBlock,
     negativePromptBlock,
   ].join(' ');
 }

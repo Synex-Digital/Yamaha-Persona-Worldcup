@@ -67,7 +67,7 @@ export default function AdminOverview() {
         </div>
       </div>
 
-      <h2 style={{ marginBottom: '24px', fontSize: '20px', fontWeight: 600 }}>{t.admin.overview.shortcutsTitle}</h2>
+      <h2 style={{ marginBottom: '24px', fontSize: '20px', fontWeight: 600, color: 'white' }}>{t.admin.overview.shortcutsTitle}</h2>
       <div className={styles.statGrid} style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
         {shortcuts.map(s => (
           <Link key={s.path} href={s.path} className={styles.statCard} style={{ 

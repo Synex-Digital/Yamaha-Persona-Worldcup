@@ -97,7 +97,7 @@ export default function UsersPage() {
           <div className={styles.modalHeader}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <h2 style={{ fontSize: '26px', fontWeight: 700, letterSpacing: '-0.5px' }}>{selectedUser.name}</h2>
+                <h2 style={{ fontSize: '26px', fontWeight: 700, letterSpacing: '-0.5px', color: 'white' }}>{selectedUser.name}</h2>
                 <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', marginTop: '4px' }}>{t.admin.users.memberSince} {new Date(selectedUser.created_at).toLocaleDateString()}</p>
               </div>
               <div style={{ textAlign: 'right', marginRight: '48px' }}>
