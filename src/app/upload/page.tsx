@@ -613,7 +613,7 @@ export default function Upload() {
           )}
           {preview && (
             <div className={styles.uploadText} style={{ background: 'rgba(0,0,0,0.5)', padding: '12px', borderRadius: '8px', backdropFilter: 'blur(4px)' }}>
-              <p style={{ fontSize: '14px' }}>{t.upload.tapToChange}</p>
+              <p style={{ fontSize: '14px', color: 'white' }}>{t.upload.tapToChange}</p>
             </div>
           )}
         </div>
