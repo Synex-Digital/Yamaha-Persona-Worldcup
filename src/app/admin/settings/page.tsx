@@ -90,48 +90,49 @@ export default function SettingsPage() {
           </div>
 
           <div>
-            <label className={styles.statLabel}>{t.admin.settings.eidCampMode}</label>
-            <button
-              type="button"
-              className={`${styles.toggleButton} ${settings.eid_camp_enabled === 'true' ? styles.toggleButtonActive : ''}`}
-              onClick={() => {
-                const nextVal = settings.eid_camp_enabled === 'true' ? 'false' : 'true';
-                setSettings({
+            <label className={styles.statLabel}>{t.admin.settings.activeCampaignMode}</label>
+            <div className={styles.campaignSelector}>
+              <button
+                type="button"
+                className={`${styles.campaignCard} ${settings.eid_camp_enabled !== 'true' && settings.worldcup_camp_enabled !== 'true' ? styles.campaignCardActive : ''}`}
+                onClick={() => setSettings({
                   ...settings,
-                  eid_camp_enabled: nextVal,
-                  worldcup_camp_enabled: nextVal === 'true' ? 'false' : settings.worldcup_camp_enabled
-                });
-              }}
-              aria-pressed={settings.eid_camp_enabled === 'true'}
-            >
-              <span>{settings.eid_camp_enabled === 'true' ? t.admin.settings.eidCampOn : t.admin.settings.eidCampOff}</span>
-              <span className={`${styles.toggleKnob} ${settings.eid_camp_enabled === 'true' ? styles.toggleKnobActive : ''}`} />
-            </button>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', marginTop: '4px' }}>
-              {t.admin.settings.eidCampHelp}
-            </p>
-          </div>
+                  eid_camp_enabled: 'false',
+                  worldcup_camp_enabled: 'false'
+                })}
+              >
+                <h3>{t.admin.settings.campaignModeStandard}</h3>
+                <p>{t.admin.settings.campaignModeStandardDesc}</p>
+              </button>
 
-          <div>
-            <label className={styles.statLabel}>{t.admin.settings.worldcupCampMode}</label>
-            <button
-              type="button"
-              className={`${styles.toggleButton} ${settings.worldcup_camp_enabled === 'true' ? styles.toggleButtonActive : ''}`}
-              onClick={() => {
-                const nextVal = settings.worldcup_camp_enabled === 'true' ? 'false' : 'true';
-                setSettings({
+              <button
+                type="button"
+                className={`${styles.campaignCard} ${settings.eid_camp_enabled === 'true' ? styles.campaignCardActive : ''}`}
+                onClick={() => setSettings({
                   ...settings,
-                  worldcup_camp_enabled: nextVal,
-                  eid_camp_enabled: nextVal === 'true' ? 'false' : settings.eid_camp_enabled
-                });
-              }}
-              aria-pressed={settings.worldcup_camp_enabled === 'true'}
-            >
-              <span>{settings.worldcup_camp_enabled === 'true' ? t.admin.settings.worldcupCampOn : t.admin.settings.worldcupCampOff}</span>
-              <span className={`${styles.toggleKnob} ${settings.worldcup_camp_enabled === 'true' ? styles.toggleKnobActive : ''}`} />
-            </button>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', marginTop: '4px' }}>
-              {t.admin.settings.worldcupCampHelp}
+                  eid_camp_enabled: 'true',
+                  worldcup_camp_enabled: 'false'
+                })}
+              >
+                <h3>{t.admin.settings.campaignModeEid}</h3>
+                <p>{t.admin.settings.campaignModeEidDesc}</p>
+              </button>
+
+              <button
+                type="button"
+                className={`${styles.campaignCard} ${settings.worldcup_camp_enabled === 'true' ? styles.campaignCardActive : ''}`}
+                onClick={() => setSettings({
+                  ...settings,
+                  eid_camp_enabled: 'false',
+                  worldcup_camp_enabled: 'true'
+                })}
+              >
+                <h3>{t.admin.settings.campaignModeWorldcup}</h3>
+                <p>{t.admin.settings.campaignModeWorldcupDesc}</p>
+              </button>
+            </div>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', marginTop: '8px' }}>
+              {t.admin.settings.activeCampaignHelp}
             </p>
           </div>
 
