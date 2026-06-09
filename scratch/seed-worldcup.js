@@ -98,9 +98,9 @@ async function seedWorldCup() {
         jersey_colors: c.jersey,
         theme_colors: c.theme,
         stadium: c.stadium,
-        personality: `The passionate ${c.name} supporter: filled with pride, energy, and love for football.`,
-        personality_bn: `ফুটবল নিয়ে প্রগাঢ় উৎসাহী ও গর্বিত ${c.name_bn} দলের সমর্থক।`,
-        scene: `Outside ${c.stadium} on a wide open road. Stadium structure visible in the background. Massive ${c.name} flag waving in the sky. Fan crowds on the sidewalks in ${c.jersey} jerseys. ${c.theme} smoke and confetti. FIFA World Cup 2026 banners. Bright daylight.`
+        personality: `Proud ${c.name} supporter, ${c.theme} football spirit.`,
+        personality_bn: `গর্বিত ${c.name_bn} সমর্থক, ফুটবল উদ্দীপনা।`,
+        scene: `Outside ${c.stadium}, wet reflective ground, stadium floodlights. ${c.name} flag in the sky. Fan crowds in ${c.jersey} jerseys. ${c.theme} smoke and confetti. FIFA World Cup 2026 banners.`
       };
 
       await connection.query(`

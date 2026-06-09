@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+scratch/k6-load-test.js
+scratch/seed-worldcup.js
+scratch/seed-worldcup.js
+scratch/seed-worldcup.js

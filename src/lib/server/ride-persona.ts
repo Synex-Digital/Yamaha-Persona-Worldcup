@@ -30,56 +30,45 @@ interface CandidateBike extends QueryRow {
 }
 
 const FIXED_IDENTITY_BLOCK = [
-  'Create a premium ultra-photorealistic lifestyle portrait of the exact person from the reference image.',
-  'Preserve exact facial identity, hairstyle, facial hair, age, and natural likeness.',
-  'Neutral or calm facial expression. Mouth closed.',
+  'Ultra-photorealistic portrait of the exact person from the reference image.',
+  'Preserve facial identity, face shape, skin tone, hairstyle, facial hair, age, and likeness.',
+  'Do not alter ethnicity or age. Neutral expression, mouth closed.',
 ].join(' ');
 
 const FIXED_COMPOSITION_BLOCK = [
-  'Vertical 3:4 composition. Single subject. Only one person visible.',
-  'Full body visible.',
-  'The entire motorcycle must be fully visible and placed clearly next to the subject, without being blocked, covered, or obscured by the subject\'s body.',
-  'Face unobstructed.',
-  'Helmet not worn.',
+  'Vertical 3:4. Single subject only.',
+  'Full body and entire motorcycle fully visible side by side, unobstructed.',
+  'Face visible, helmet not worn.',
 ].join(' ');
 
-const FIXED_REALISM_BLOCK = [
-  'Style: commercial motorcycle photography, cinematic depth of field, natural lighting, realistic shadows, high-detail textures, realistic skin tones, and seamless face integration.',
-].join(' ');
+const FIXED_REALISM_BLOCK =
+  'Style: commercial motorcycle photography, cinematic depth of field, natural lighting, realistic shadows, high-detail textures, realistic skin tones, seamless face integration.';
 
 const POSE_OPTIONS = [
-  'Full-body standing beside the motorcycle, keeping the entire motorcycle fully visible next to the subject, arms crossed, body angled toward the bike, head slightly turned away, confident presence.',
-  'Sitting sideways on the motorcycle seat, one foot on the ground, upper body turned slightly toward camera, one hand resting on or holding the helmet.',
-  'Standing beside the motorcycle with the entire motorcycle clearly visible next to the subject, one hand adjusting the collar area, the other holding a helmet, calm cinematic confidence.',
-  'Sitting on the motorcycle, torso slightly forward, both forearms resting on a helmet near the tank or handlebar, relaxed editorial pose.',
-  'Walking beside the parked motorcycle, showing the full motorcycle clearly visible next to the subject, carrying a helmet in one hand, natural mid-step movement, cinematic travel mood.',
+  'Standing beside motorcycle, arms crossed, body angled toward bike, head slightly turned away, confident presence.',
+  'Sitting sideways on motorcycle seat, one foot on ground, upper body turned toward camera, one hand on helmet.',
+  'Standing beside motorcycle, one hand adjusting collar, the other holding helmet, calm cinematic confidence.',
+  'Sitting on motorcycle, torso slightly forward, forearms resting on helmet near tank, relaxed editorial pose.',
+  'Walking beside parked motorcycle, carrying helmet in one hand, natural mid-step movement, cinematic travel mood.',
 ] as const;
 
 const NEGATIVE_PROMPT_TERMS = [
-  'torn clothing',
-  'damaged trousers',
+  'torn or dirty clothing',
   'worn-out shoes',
-  'dirty outfit',
-  'messy wardrobe',
   'broken accessories',
-  'deformed motorcycle',
-  'warped motorcycle frame',
-  'rusty motorcycle parts',
-  'low-quality motorcycle detailing',
+  'deformed or warped motorcycle',
+  'rusty parts',
   'blurry details',
   'distorted anatomy',
   'extra limbs',
   'awkward hands',
   'unnatural posture',
-  'multiple people in foreground',
+  'multiple people',
   'duplicate faces',
   'oversaturated colors',
-  'poorly rendered helmet',
   'floating objects',
   'cluttered background',
-  'cartoon appearance',
-  'illustration look',
-  'CGI-looking skin',
+  'cartoon or CGI appearance',
   'bike number plate',
   'rusted pipe'
 ] as const;
@@ -163,11 +152,11 @@ function buildFinalMood(destinationMood: string, aspiration: string) {
 
 function buildGenderGuidance(gender?: string | null) {
   if (gender === 'Female') {
-    return 'Use realistic female body structure, natural feminine posture, accurate shoulder-to-waist-to-hip proportions, feminine limb shape, and clean women rider styling while preserving the exact person from the reference image.';
+    return 'Realistic female body structure, natural feminine posture, accurate proportions, clean women rider styling.';
   }
 
   if (gender === 'Male') {
-    return 'Use realistic male body structure, natural masculine posture, accurate body proportions, and clean rider styling while preserving the exact person from the reference image.';
+    return 'Realistic male body structure, natural masculine posture, accurate proportions, clean rider styling.';
   }
 
   return null;
@@ -182,7 +171,7 @@ function buildWardrobePrompt(
   if (isWorldcupCampEnabled) {
     const country = destinationMeta?.country || 'their favorite nation';
     const jerseyColors = destinationMeta?.jersey_colors || 'national colors';
-    return `Wardrobe: premium sports fan attire: an official ${jerseyColors} jersey of ${country}, a matching ${country} themed fan scarf wrapped around the neck, dark blue denim jeans pants, and clean premium athletic sneakers. Clean, perfectly fitted, and camera-ready.`;
+    return `Wardrobe: ${jerseyColors} jersey of ${country}, optional fan scarf, dark denim jeans, premium sneakers. Clean and camera-ready.`;
   }
 
   if (!isEidCampEnabled) {
@@ -374,23 +363,23 @@ export function buildImagePrompt(args: {
 
   const isFzsV4 = args.bikeModel.toLowerCase().includes('fzs') && args.bikeModel.toLowerCase().includes('v4');
   const vehicleDetails = isFzsV4
-    ? 'The motorcycle must feature the authentic FZS V4 front face: a modern shield-shaped headlamp housing with a central LED projector lens and signature bracket-shaped LED Daytime Running Lights (DRLs) on the sides. The tank shrouds are sleek and solid body-colored, with no silver mesh vents. Do not render the older split-triangular headlight or mesh side vents of the FZS V3. Accurate proportions, clean frame geometry, realistic materials, and proper metallic reflections.'
-    : 'with authentic model presence, accurate proportions, clean frame geometry, realistic materials, proper reflections, detailed mechanical parts, and high-quality motorcycle styling.';
+    ? 'Authentic FZS V4 front face: shield-shaped headlamp with central LED projector and bracket-shaped DRLs. Sleek solid body-colored tank shrouds, no mesh vents. Do not render FZS V3 split-headlight. Accurate proportions, realistic materials and reflections.'
+    : 'Accurate proportions, realistic materials and reflections, detailed mechanical parts.';
 
   const realismBlock = args.isWorldcupCampEnabled
-    ? 'Style: commercial motorcycle photography, deep depth of field, sharp background details with the stadium structure clearly visible in focus, natural lighting, realistic shadows, high-detail textures, realistic skin tones, and seamless face integration.'
+    ? 'Style: cinematic stadium lighting, atmospheric haze, deep depth of field, sharp background, realistic shadows and skin tones, seamless face integration.'
     : FIXED_REALISM_BLOCK;
 
   return [
     FIXED_IDENTITY_BLOCK,
     FIXED_COMPOSITION_BLOCK,
-    `Gender guidance: ${genderGuidance}`,
+    genderGuidance ? `Gender: ${genderGuidance}` : '',
     `Pose: ${selectedPose}`,
-    `Vehicle: realistic ${args.bikeModel} in ${args.bikeColor}, ${vehicleDetails}`,
+    `Vehicle: ${args.bikeModel} in ${args.bikeColor}, ${vehicleDetails}`,
     `Environment: ${destinationScene}.`,
     `Mood: ${finalMood}.`,
     wardrobePrompt,
     realismBlock,
     negativePromptBlock,
-  ].join(' ');
+  ].filter(Boolean).join(' ');
 }
