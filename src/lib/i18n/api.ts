@@ -12,8 +12,12 @@ export async function getRequestLanguage(req: Request): Promise<Language> {
 
   if (contentType.includes('application/json')) {
     try {
-      const clone = req.clone();
-      const body = await clone.json();
+      if ((req as any)._parsedBody) {
+        return resolveLanguage((req as any)._parsedBody?.lang);
+      }
+      const body = await req.json();
+      (req as any)._parsedBody = body;
+      req.json = async () => body;
       return resolveLanguage(body?.lang);
     } catch {
       return DEFAULT_LANGUAGE;
@@ -22,8 +26,13 @@ export async function getRequestLanguage(req: Request): Promise<Language> {
 
   if (contentType.includes('multipart/form-data')) {
     try {
-      const clone = req.clone();
-      const formData = await clone.formData();
+      if ((req as any)._parsedFormData) {
+        const formData = (req as any)._parsedFormData;
+        return resolveLanguage(typeof formData.get('lang') === 'string' ? (formData.get('lang') as string) : null);
+      }
+      const formData = await req.formData();
+      (req as any)._parsedFormData = formData;
+      req.formData = async () => formData;
       return resolveLanguage(typeof formData.get('lang') === 'string' ? (formData.get('lang') as string) : null);
     } catch {
       return DEFAULT_LANGUAGE;

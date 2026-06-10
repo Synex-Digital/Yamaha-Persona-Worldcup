@@ -6,14 +6,20 @@ import { getAppSettings } from '@/lib/server/app-settings';
 async function checkAdmin() {
   const token = await getAuthCookie();
   if (!token) throw new Error('Unauthorized');
-  await verifyAuth(token);
+  const payload = await verifyAuth(token);
+  if (payload.role !== 'superadmin') {
+    throw new Error('Forbidden');
+  }
 }
 
 export async function GET() {
   try {
     await checkAdmin();
     return NextResponse.json({ settings: await getAppSettings() });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Forbidden') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     const message = error instanceof Error ? error.message : 'Unauthorized';
     return NextResponse.json({ error: message }, { status: 401 });
   }
@@ -72,7 +78,13 @@ export async function PUT(req: Request) {
     if (body.theme_mode !== undefined) await updateSetting('theme_mode', body.theme_mode);
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Forbidden') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const message = error instanceof Error ? error.message : 'Failed to save settings';
     return NextResponse.json({ error: message }, { status: 500 });
   }

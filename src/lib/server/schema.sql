@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS generations (
     final_prompt LONGTEXT NULL,
     resolved_bike_color VARCHAR(255) NULL,
     selection_meta JSON NULL,
+    performance_meta JSON NULL,
     status ENUM('processing', 'completed', 'failed') DEFAULT 'completed',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,

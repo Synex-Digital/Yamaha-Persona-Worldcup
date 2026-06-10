@@ -246,23 +246,25 @@ export default function QuizManagerPage() {
             </form>
           </div>
           <div className={styles.card}>
-            <table className={styles.table}>
-              <thead><tr><th>{t.admin.quiz.cols.order}</th><th>{t.admin.quiz.cols.question}</th><th>{t.admin.quiz.cols.type}</th><th>{t.admin.quiz.cols.actions}</th></tr></thead>
-              <tbody>
-                {quizQuestions.map((q) => (
-                  <tr key={q.id}>
-                    <td style={{ width: '60px', color: '#007aff', fontWeight: 800 }}>{q.order_index}</td>
-                    <td style={{ fontWeight: 500 }}>{q.question_text}<div style={{ color: 'rgba(255,255,255,0.38)', fontSize: '12px', marginTop: '4px' }}>{q.question_text_bn || t.common.notAvailable}</div></td>
-                    <td><span className={styles.badge} style={{ background: q.question_type === 'behavior' ? 'rgba(0, 122, 255, 0.2)' : q.question_type === 'destination' ? 'rgba(0, 255, 122, 0.1)' : 'rgba(255, 122, 0, 0.1)', color: q.question_type === 'behavior' ? '#007aff' : q.question_type === 'destination' ? '#00ff7a' : '#ff7a00' }}>{q.question_type}</span></td>
-                    <td>
-                      <button onClick={() => startEditingQuestion(q)} className={styles.editBtn}>{t.common.edit}</button>
-                      <button onClick={() => setSelectedQuestion(q)} className={styles.editBtn}>{t.admin.quiz.manageOptions}</button>
-                      <button onClick={() => handleDeleteQuestion(q.id)} className={styles.dangerBtn}>{t.common.delete}</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead><tr><th>{t.admin.quiz.cols.order}</th><th>{t.admin.quiz.cols.question}</th><th>{t.admin.quiz.cols.type}</th><th>{t.admin.quiz.cols.actions}</th></tr></thead>
+                <tbody>
+                  {quizQuestions.map((q) => (
+                    <tr key={q.id}>
+                      <td style={{ width: '60px', color: '#007aff', fontWeight: 800 }}>{q.order_index}</td>
+                      <td style={{ fontWeight: 500 }}>{q.question_text}<div style={{ color: 'rgba(255,255,255,0.38)', fontSize: '12px', marginTop: '4px' }}>{q.question_text_bn || t.common.notAvailable}</div></td>
+                      <td><span className={styles.badge} style={{ background: q.question_type === 'behavior' ? 'rgba(0, 122, 255, 0.2)' : q.question_type === 'destination' ? 'rgba(0, 255, 122, 0.1)' : 'rgba(255, 122, 0, 0.1)', color: q.question_type === 'behavior' ? '#007aff' : q.question_type === 'destination' ? '#00ff7a' : '#ff7a00' }}>{q.question_type}</span></td>
+                      <td>
+                        <button onClick={() => startEditingQuestion(q)} className={styles.editBtn}>{t.common.edit}</button>
+                        <button onClick={() => setSelectedQuestion(q)} className={styles.editBtn}>{t.admin.quiz.manageOptions}</button>
+                        <button onClick={() => handleDeleteQuestion(q.id)} className={styles.dangerBtn}>{t.common.delete}</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </>
       ) : (
@@ -279,8 +281,8 @@ export default function QuizManagerPage() {
               <input placeholder={t.admin.quiz.optionTitleBn} value={newOption.option_text_bn} onChange={(e) => setNewOption({ ...newOption, option_text_bn: e.target.value })} className={styles.input} />
               <input placeholder={t.admin.quiz.shortDescription} value={newOption.option_desc} onChange={(e) => setNewOption({ ...newOption, option_desc: e.target.value })} className={styles.input} />
               <input placeholder={t.admin.quiz.shortDescriptionBn} value={newOption.option_desc_bn} onChange={(e) => setNewOption({ ...newOption, option_desc_bn: e.target.value })} className={styles.input} />
-              <input placeholder={t.admin.quiz.iconName} value={newOption.icon_name} onChange={(e) => setNewOption({ ...newOption, icon_name: e.target.value })} className={styles.input} style={{ gridColumn: 'span 2' }} />
-              <label style={{ gridColumn: 'span 2', display: 'flex', gap: '10px', alignItems: 'center', fontSize: '13px', color: 'rgba(255,255,255,0.72)' }}>
+              <input placeholder={t.admin.quiz.iconName} value={newOption.icon_name} onChange={(e) => setNewOption({ ...newOption, icon_name: e.target.value })} className={`${styles.input} ${styles.span2}`} />
+              <label className={styles.span2} style={{ display: 'flex', gap: '10px', alignItems: 'center', fontSize: '13px', color: 'rgba(255,255,255,0.72)' }}>
                 <input
                   type="checkbox"
                   checked={newOption.is_active !== false}
@@ -291,7 +293,7 @@ export default function QuizManagerPage() {
 
               {selectedQuestion.question_type === 'behavior' && (
                 <>
-                  <div style={{ gridColumn: 'span 2' }}>
+                  <div className={styles.span2}>
                     <label className={styles.statLabel} style={{ marginBottom: '12px', display: 'block' }}>{t.admin.quiz.selectBikes}</label>
                     <div className={styles.bikeGrid}>
                       {bikes.map((bike) => (
@@ -308,7 +310,7 @@ export default function QuizManagerPage() {
                   </div>
 
                   {newOption.bike_mappings.length > 0 && (
-                    <div style={{ gridColumn: 'span 2' }}>
+                    <div className={styles.span2}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                         <label className={styles.statLabel}>{t.admin.quiz.bikePriorityWeight}</label>
                         <span style={{ color: totalActiveWeight(newOption.bike_mappings) === 100 ? '#00ff7a' : '#ffb020', fontSize: '12px', fontWeight: 700 }}>
@@ -321,7 +323,7 @@ export default function QuizManagerPage() {
                           .slice()
                           .sort((a: BikeMapping, b: BikeMapping) => a.priority_order - b.priority_order)
                           .map((mapping: BikeMapping) => (
-                            <div key={mapping.bike_id} style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.5fr) 120px 120px 90px', gap: '12px', alignItems: 'center' }}>
+                            <div key={mapping.bike_id} className={styles.bikeMappingRow}>
                               <div style={{ fontSize: '13px', fontWeight: 600 }}>{mapping.model_name}</div>
                               <input type="number" min="0" max="100" className={styles.input} value={mapping.weight_percent} onChange={(e) => updateMapping(mapping.bike_id, { weight_percent: parseInt(e.target.value) || 0 })} placeholder={t.admin.quiz.weight} />
                               <input type="number" min="1" className={styles.input} value={mapping.priority_order} onChange={(e) => updateMapping(mapping.bike_id, { priority_order: parseInt(e.target.value) || 1 })} placeholder={t.admin.quiz.priority} />
@@ -345,54 +347,56 @@ export default function QuizManagerPage() {
               )}
 
               {selectedQuestion.question_type === 'aspiration' && (
-                <input placeholder={t.admin.quiz.targetBikeColor} value={newOption.metadata?.color || ''} onChange={(e) => setNewOption({ ...newOption, metadata: { ...newOption.metadata, color: e.target.value } })} className={styles.input} style={{ gridColumn: 'span 2' }} />
+                <input placeholder={t.admin.quiz.targetBikeColor} value={newOption.metadata?.color || ''} onChange={(e) => setNewOption({ ...newOption, metadata: { ...newOption.metadata, color: e.target.value } })} className={`${styles.input} ${styles.span2}`} />
               )}
 
               {formError && (
-                <div style={{ gridColumn: 'span 2', background: 'rgba(255, 77, 77, 0.1)', color: '#ff8080', borderRadius: '10px', padding: '12px 14px', fontSize: '13px' }}>
+                <div className={styles.span2} style={{ background: 'rgba(255, 77, 77, 0.1)', color: '#ff8080', borderRadius: '10px', padding: '12px 14px', fontSize: '13px' }}>
                   {formError}
                 </div>
               )}
 
-              <div style={{ gridColumn: 'span 2', display: 'flex', gap: '16px', marginTop: '12px' }}>
+              <div className={styles.span2} style={{ display: 'flex', gap: '16px', marginTop: '12px' }}>
                 <button type="submit" className={styles.primaryBtn}>{editingOption ? t.admin.quiz.updateOption : t.admin.quiz.createOptionButton}</button>
                 {editingOption && <button type="button" onClick={resetOptionForm} className={styles.secondaryBtn}>{t.common.cancel}</button>}
               </div>
             </form>
           </div>
           <div className={styles.card}>
-            <table className={styles.table}>
-              <thead><tr><th>{t.admin.quiz.cols.title}</th><th>{t.admin.quiz.cols.status}</th><th>{t.admin.quiz.cols.metadata}</th><th>{t.admin.quiz.cols.actions}</th></tr></thead>
-              <tbody>
-                {quizOptions.map((option) => (
-                  <tr key={option.id}>
-                    <td style={{ fontWeight: 600 }}>{option.option_text}<div style={{ color: 'rgba(255,255,255,0.38)', fontSize: '12px', marginTop: '4px' }}>{option.option_text_bn || t.common.notAvailable}</div></td>
-                    <td>
-                      <span
-                        className={styles.badge}
-                        style={{
-                          background: option.is_active ? 'rgba(0, 255, 122, 0.1)' : 'rgba(255, 77, 77, 0.12)',
-                          color: option.is_active ? '#00ff7a' : '#ff8080',
-                        }}
-                      >
-                        {option.is_active ? t.common.enabled : t.common.disabled}
-                      </span>
-                    </td>
-                    <td style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>
-                      {selectedQuestion.question_type === 'behavior'
-                        ? (option.bike_mappings || []).map((mapping: any) => `${mapping.model_name} (${mapping.weight_percent}%)`).join(', ') || t.admin.quiz.none
-                        : selectedQuestion.question_type === 'destination'
-                          ? `${t.admin.quiz.scene}: ${(typeof option.metadata === 'string' ? JSON.parse(option.metadata || '{}') : option.metadata || {}).scene || t.common.notAvailable}`
-                          : `${t.admin.quiz.color}: ${(typeof option.metadata === 'string' ? JSON.parse(option.metadata || '{}') : option.metadata || {}).color || t.common.notAvailable}`}
-                    </td>
-                    <td>
-                      <button onClick={() => startEditingOption(option)} className={styles.editBtn}>{t.common.edit}</button>
-                      <button onClick={() => handleDeleteOption(option.id)} className={styles.dangerBtn}>{t.common.delete}</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead><tr><th>{t.admin.quiz.cols.title}</th><th>{t.admin.quiz.cols.status}</th><th>{t.admin.quiz.cols.metadata}</th><th>{t.admin.quiz.cols.actions}</th></tr></thead>
+                <tbody>
+                  {quizOptions.map((option) => (
+                    <tr key={option.id}>
+                      <td style={{ fontWeight: 600 }}>{option.option_text}<div style={{ color: 'rgba(255,255,255,0.38)', fontSize: '12px', marginTop: '4px' }}>{option.option_text_bn || t.common.notAvailable}</div></td>
+                      <td>
+                        <span
+                          className={styles.badge}
+                          style={{
+                            background: option.is_active ? 'rgba(0, 255, 122, 0.1)' : 'rgba(255, 77, 77, 0.12)',
+                            color: option.is_active ? '#00ff7a' : '#ff8080',
+                          }}
+                        >
+                          {option.is_active ? t.common.enabled : t.common.disabled}
+                        </span>
+                      </td>
+                      <td style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>
+                        {selectedQuestion.question_type === 'behavior'
+                          ? (option.bike_mappings || []).map((mapping: any) => `${mapping.model_name} (${mapping.weight_percent}%)`).join(', ') || t.admin.quiz.none
+                          : selectedQuestion.question_type === 'destination'
+                            ? `${t.admin.quiz.scene}: ${(typeof option.metadata === 'string' ? JSON.parse(option.metadata || '{}') : option.metadata || {}).scene || t.common.notAvailable}`
+                            : `${t.admin.quiz.color}: ${(typeof option.metadata === 'string' ? JSON.parse(option.metadata || '{}') : option.metadata || {}).color || t.common.notAvailable}`}
+                      </td>
+                      <td>
+                        <button onClick={() => startEditingOption(option)} className={styles.editBtn}>{t.common.edit}</button>
+                        <button onClick={() => handleDeleteOption(option.id)} className={styles.dangerBtn}>{t.common.delete}</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </>
       )}

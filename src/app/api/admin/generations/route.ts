@@ -5,12 +5,13 @@ import { verifyAuth, getAuthCookie } from '@/lib/server/auth';
 async function checkAdmin() {
   const token = await getAuthCookie();
   if (!token) throw new Error('Unauthorized');
-  await verifyAuth(token);
+  return await verifyAuth(token);
 }
 
 export async function GET(req: Request) {
   try {
-    await checkAdmin();
+    const payload = await checkAdmin();
+    const isSuperAdmin = payload.role === 'superadmin';
 
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get('page') || '1', 10);
@@ -25,6 +26,8 @@ export async function GET(req: Request) {
           g.generated_image_url,
           g.persona_title,
           g.resolved_bike_color,
+          g.performance_meta,
+          g.final_prompt,
           g.created_at,
           u.id as user_id,
           u.name as user_name,
@@ -41,11 +44,27 @@ export async function GET(req: Request) {
       query<any[]>('SELECT COUNT(*) as total FROM generations')
     ]);
 
-    const normalizedGenerations = generations.map((generation) => ({
-      ...generation,
-      id: Number(generation.id),
-      user_id: Number(generation.user_id),
-    }));
+    const normalizedGenerations = generations.map((generation) => {
+      const { performance_meta, ...rest } = generation;
+      
+      const genObj: any = {
+        ...rest,
+        id: Number(generation.id),
+        user_id: Number(generation.user_id),
+      };
+
+      if (isSuperAdmin && performance_meta) {
+        try {
+          genObj.performance_meta = typeof performance_meta === 'string'
+            ? JSON.parse(performance_meta)
+            : performance_meta;
+        } catch (e) {
+          genObj.performance_meta = null;
+        }
+      }
+
+      return genObj;
+    });
 
     return NextResponse.json({
       generations: normalizedGenerations,

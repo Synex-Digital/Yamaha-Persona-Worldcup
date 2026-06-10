@@ -5,7 +5,10 @@ import { verifyAuth, getAuthCookie } from '@/lib/server/auth';
 async function checkAdmin() {
   const token = await getAuthCookie();
   if (!token) throw new Error('Unauthorized');
-  await verifyAuth(token);
+  const payload = await verifyAuth(token);
+  if (payload.role !== 'superadmin') {
+    throw new Error('Forbidden');
+  }
 }
 
 export async function GET() {
@@ -14,6 +17,9 @@ export async function GET() {
     const bikes = await query('SELECT * FROM bikes ORDER BY created_at DESC');
     return NextResponse.json({ bikes });
   } catch (err: any) {
+    if (err.message === 'Forbidden') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     return NextResponse.json({ error: err.message }, { status: 401 });
   }
 }
@@ -37,6 +43,12 @@ export async function POST(req: Request) {
     );
     return NextResponse.json({ success: true });
   } catch (err: any) {
+    if (err.message === 'Forbidden') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    if (err.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
@@ -52,6 +64,12 @@ export async function DELETE(req: Request) {
     await query('DELETE FROM bikes WHERE id = ?', [id]);
     return NextResponse.json({ success: true });
   } catch (err: any) {
+    if (err.message === 'Forbidden') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    if (err.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
@@ -78,6 +96,12 @@ export async function PUT(req: Request) {
     );
     return NextResponse.json({ success: true });
   } catch (err: any) {
+    if (err.message === 'Forbidden') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    if (err.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

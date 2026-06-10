@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/server/mysql';
-import { generateCinematicImage, generatePersonaCopy, getBikeImageBase64 } from '@/lib/server/gemini';
+import { generateCinematicImage, getBikeImageBase64, generatePersonaContent } from '@/lib/server/gemini';
 import { buildImagePrompt, parsePersonaPayload, selectBikeForPersona } from '@/lib/server/ride-persona';
 import { getApiMessages, getRequestLanguage } from '@/lib/i18n/api';
 import { cookies } from 'next/headers';
@@ -76,6 +76,17 @@ export async function POST(req: Request) {
     checkpoints[label] = Date.now() - startedAt;
     console.log(`[api/generate] ${label} at ${checkpoints[label]}ms`);
   };
+
+  const textModel = process.env.AI_TEXT_MODEL || 'gemini-2.5-flash';
+  const imageModel = process.env.AI_IMAGE_MODEL || 'gemini-3.1-flash-image';
+  let combinedUsage: { promptTokenCount: number; candidatesTokenCount: number } | undefined;
+  let combinedUsedKeyIndex: number | undefined;
+  let textCost = 0;
+  let imageUsage: { promptTokenCount: number; candidatesTokenCount: number } | undefined;
+  let imageUsedKeyIndex: number | undefined;
+  let imageCost = 0;
+  let totalCost = 0;
+  let optimizedPromptText = '';
 
   try {
     if (await getBooleanAppSetting('campaign_completed')) {
@@ -266,15 +277,27 @@ export async function POST(req: Request) {
     let generatedImageUrl = null;
     let generationStatus = 'completed';
 
-    // 1. Generate premium appreciation statement first using gemini-2.5-flash
+    optimizedPromptText = finalPrompt;
+
+    // 1. Generate premium appreciation statement and optimize the image prompt in a single call using gemini-2.5-flash
     try {
-      console.log('[api/generate] Generating premium appreciation statement...');
-      const generatedResult = await generatePersonaCopy(personaSummary, bikeModel);
-      if (generatedResult?.text) {
-        personaCopy = generatedResult.text.trim();
+      console.log('[api/generate] Generating persona text & optimizing image prompt in a single call...');
+      const combinedResult = await generatePersonaContent(personaSummary, bikeModel, finalPrompt);
+      
+      if (combinedResult.appreciationText) {
+        personaCopy = combinedResult.appreciationText;
       }
-    } catch (textError) {
-      console.error('[api/generate] Persona text generation failed:', textError);
+      if (combinedResult.optimizedPrompt) {
+        optimizedPromptText = combinedResult.optimizedPrompt;
+      }
+      if (combinedResult.usage) {
+        combinedUsage = combinedResult.usage;
+      }
+      if (combinedResult.usedKeyIndex !== undefined) {
+        combinedUsedKeyIndex = combinedResult.usedKeyIndex;
+      }
+    } catch (combinedError) {
+      console.error('[api/generate] Combined persona content generation failed:', combinedError);
     }
 
     // 2. Generate the cinematic face-matched portrait
@@ -285,13 +308,99 @@ export async function POST(req: Request) {
         mimeType,
         bikeRef?.base64 || null,
         bikeRef?.mimeType || null,
-        finalPrompt
+        optimizedPromptText
       );
       generatedImageUrl = result.imageUrl;
+      if (result.usage) {
+        imageUsage = result.usage;
+      }
+      if (result.usedKeyIndex !== undefined) {
+        imageUsedKeyIndex = result.usedKeyIndex;
+      }
     } catch (aiError: any) {
       console.error('Gemini Image Generation Failed. Triggering premium fallback card...', aiError);
       generationStatus = 'failed';
     }
+
+    // Cost calculation & log output
+    const getRates = (modelName: string) => {
+      const normalized = modelName.toLowerCase();
+      if (normalized.includes('gemini-3-pro-image')) {
+        return { input: 2.00, output: 12.00 };
+      }
+      if (
+        normalized.includes('gemini-3.1-flash-image') ||
+        normalized.includes('gemini-3.1-flash') ||
+        normalized.includes('gemini-3-flash')
+      ) {
+        return { input: 0.50, output: 3.00 };
+      }
+      // Default to gemini-2.5-flash rates
+      return { input: 0.30, output: 2.50 };
+    };
+
+    const textRates = getRates(textModel);
+    const imageRates = getRates(imageModel);
+
+    textCost = 0;
+    imageCost = 0;
+
+    if (combinedUsage) {
+      const inputCost = (combinedUsage.promptTokenCount / 1_000_000) * textRates.input;
+      const outputCost = (combinedUsage.candidatesTokenCount / 1_000_000) * textRates.output;
+      textCost = inputCost + outputCost;
+    }
+
+    if (imageUsage) {
+      const inputCost = (imageUsage.promptTokenCount / 1_000_000) * imageRates.input;
+      const outputCost = (imageUsage.candidatesTokenCount / 1_000_000) * imageRates.output;
+      imageCost = inputCost + outputCost;
+    }
+
+    totalCost = textCost + imageCost;
+
+    console.log('\n' + '='.repeat(60));
+    console.log('              GEMINI PROMPT OPTIMIZATION LOGS');
+    console.log('='.repeat(60));
+    console.log('--- ORIGINAL PROMPT ---');
+    console.log(finalPrompt);
+    console.log('-'.repeat(60));
+    console.log('--- OPTIMIZED PROMPT ---');
+    console.log(optimizedPromptText);
+    console.log('='.repeat(60) + '\n');
+
+    console.log('\n' + '='.repeat(60));
+    console.log('              GEMINI API COST BREAKDOWN');
+    console.log('='.repeat(60));
+    console.log(`Combined Text & Optimizer Model: ${textModel}${combinedUsedKeyIndex !== undefined ? ` (API Key Index: ${combinedUsedKeyIndex})` : ''}`);
+    if (combinedUsage) {
+      console.log(`  - Input Tokens:  ${combinedUsage.promptTokenCount.toLocaleString()} (Cost: $${((combinedUsage.promptTokenCount / 1_000_000) * textRates.input).toFixed(8)})`);
+      console.log(`  - Output Tokens: ${combinedUsage.candidatesTokenCount.toLocaleString()} (Cost: $${((combinedUsage.candidatesTokenCount / 1_000_000) * textRates.output).toFixed(8)})`);
+      console.log(`  - Subtotal Cost: $${textCost.toFixed(8)}`);
+    } else {
+      console.log('  - Usage stats not available');
+    }
+    console.log('-'.repeat(60));
+    console.log(`Image Generator Model: ${imageModel}${imageUsedKeyIndex !== undefined ? ` (API Key Index: ${imageUsedKeyIndex})` : ''}`);
+    if (imageUsage) {
+      console.log(`  - Input Tokens:  ${imageUsage.promptTokenCount.toLocaleString()} (Cost: $${((imageUsage.promptTokenCount / 1_000_000) * imageRates.input).toFixed(8)})`);
+      console.log(`  - Output Tokens: ${imageUsage.candidatesTokenCount.toLocaleString()} (Cost: $${((imageUsage.candidatesTokenCount / 1_000_000) * imageRates.output).toFixed(8)})`);
+      console.log(`  - Subtotal Cost: $${imageCost.toFixed(8)}`);
+    } else {
+      console.log('  - Usage stats not available');
+    }
+    console.log('='.repeat(60));
+    console.log('TOTAL COMBINED STATS:');
+    if (combinedUsage || imageUsage) {
+      const totalInput = (combinedUsage?.promptTokenCount || 0) + (imageUsage?.promptTokenCount || 0);
+      const totalOutput = (combinedUsage?.candidatesTokenCount || 0) + (imageUsage?.candidatesTokenCount || 0);
+      console.log(`  - Total Input Tokens:  ${totalInput.toLocaleString()}`);
+      console.log(`  - Total Output Tokens: ${totalOutput.toLocaleString()}`);
+      console.log(`  - Combined Total Cost: $${totalCost.toFixed(8)}`);
+    } else {
+      console.log('  - No usage stats available');
+    }
+    console.log('='.repeat(60) + '\n');
 
     let publicS3Url = selection.bike.image_url;
 
@@ -331,22 +440,58 @@ export async function POST(req: Request) {
       }
     }
 
+    const performanceMeta = {
+      textModel,
+      textTokens: combinedUsage ? {
+        prompt: combinedUsage.promptTokenCount,
+        candidates: combinedUsage.candidatesTokenCount
+      } : null,
+      textCost,
+      textApiKeyIndex: combinedUsedKeyIndex,
+      imageModel,
+      imageTokens: imageUsage ? {
+        prompt: imageUsage.promptTokenCount,
+        candidates: imageUsage.candidatesTokenCount
+      } : null,
+      imageCost,
+      imageApiKeyIndex: imageUsedKeyIndex,
+      totalCost,
+      totalDurationMs: Date.now() - startedAt,
+      checkpoints,
+      error: null,
+      optimizedPromptText
+    };
+
     // Save to database
     console.log('[api/generate] Saving generation record to database with status:', generationStatus);
     await query(
       `UPDATE generations
        SET generated_image_url = ?,
            traits_summary = ?,
-           status = ?
+           status = ?,
+           performance_meta = ?
        WHERE hash_id = ?`,
       [
         publicS3Url,
         personaCopy,
         generationStatus,
+        JSON.stringify(performanceMeta),
         hashId,
       ]
     );
     mark('db-saved');
+    
+    if (generationStatus === 'completed') {
+      try {
+        const { updateStatsCache } = await import('@/lib/server/statsCache');
+        const textTokensCount = (combinedUsage?.promptTokenCount || 0) + (combinedUsage?.candidatesTokenCount || 0);
+        const imageTokensCount = (imageUsage?.promptTokenCount || 0) + (imageUsage?.candidatesTokenCount || 0);
+        updateStatsCache(totalCost, Date.now() - startedAt, textTokensCount + imageTokensCount);
+      } catch (cacheError) {
+        console.error('Failed to update stats cache dynamically:', cacheError);
+      }
+    }
+
     reservedGeneration = false;
 
     // Clear the OTP session token so they must verify again to generate another image
@@ -371,11 +516,34 @@ export async function POST(req: Request) {
   } catch (error: any) {
     if (reservedGeneration && activeHashId) {
       try {
+        const performanceMeta = {
+          textModel,
+          textTokens: combinedUsage ? {
+            prompt: combinedUsage.promptTokenCount,
+            candidates: combinedUsage.candidatesTokenCount
+          } : null,
+          textCost,
+          textApiKeyIndex: combinedUsedKeyIndex,
+          imageModel,
+          imageTokens: imageUsage ? {
+            prompt: imageUsage.promptTokenCount,
+            candidates: imageUsage.candidatesTokenCount
+          } : null,
+          imageCost,
+          imageApiKeyIndex: imageUsedKeyIndex,
+          totalCost,
+          totalDurationMs: Date.now() - startedAt,
+          checkpoints,
+          error: error.message || String(error),
+          optimizedPromptText
+        };
+
         await query(
           `UPDATE generations
-           SET status = ?
+           SET status = ?,
+               performance_meta = ?
            WHERE hash_id = ?`,
-          ['failed', activeHashId]
+          ['failed', JSON.stringify(performanceMeta), activeHashId]
         );
       } catch (updateError) {
         console.error('Failed to mark generation as failed:', updateError);

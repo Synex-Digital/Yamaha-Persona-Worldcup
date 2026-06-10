@@ -170,48 +170,50 @@ export default function UsersPage() {
       </div>
 
       <div className={styles.card}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th style={{ width: '40px' }}>
-                <input type="checkbox" checked={selectedIds.length === users.length && users.length > 0} onChange={toggleSelectAll} />
-              </th>
-              <th>{t.admin.users.cols.id}</th>
-              <th>{t.admin.users.cols.name}</th>
-              <th>{t.admin.users.cols.phone}</th>
-              <th>{t.admin.users.cols.ageRange}</th>
-              <th>{t.admin.users.cols.gender}</th>
-              <th>{t.admin.users.cols.division}</th>
-              <th>{t.admin.users.cols.gens}</th>
-              <th>{t.admin.users.cols.joined}</th>
-              <th>{t.admin.users.cols.actions}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={10} style={{ textAlign: 'center', padding: '40px' }}>{t.admin.users.loading}</td></tr>
-            ) : (
-              users.map(u => (
-                <tr key={u.id} className={selectedIds.includes(u.id) ? styles.rowSelected : ''}>
-                  <td>
-                    <input type="checkbox" checked={selectedIds.includes(u.id)} onChange={() => toggleSelect(u.id)} />
-                  </td>
-                  <td>{u.id}</td>
-                  <td style={{ fontWeight: 600 }}>{u.name}</td>
-                  <td>{u.phone}</td>
-                  <td>{u.dob || t.common.notAvailable}</td>
-                  <td>{u.gender || t.common.notAvailable}</td>
-                  <td>{u.division || t.common.notAvailable}</td>
-                  <td>{u.total_generations}</td>
-                  <td>{new Date(u.created_at).toLocaleDateString()}</td>
-                  <td>
-                    <button onClick={() => setSelectedUser(u)} className={styles.editBtn}>{t.admin.users.viewDetails}</button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th style={{ width: '40px' }}>
+                  <input type="checkbox" checked={selectedIds.length === users.length && users.length > 0} onChange={toggleSelectAll} />
+                </th>
+                <th>{t.admin.users.cols.id}</th>
+                <th>{t.admin.users.cols.name}</th>
+                <th>{t.admin.users.cols.phone}</th>
+                <th>{t.admin.users.cols.ageRange}</th>
+                <th>{t.admin.users.cols.gender}</th>
+                <th>{t.admin.users.cols.division}</th>
+                <th>{t.admin.users.cols.gens}</th>
+                <th>{t.admin.users.cols.joined}</th>
+                <th>{t.admin.users.cols.actions}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan={10} style={{ textAlign: 'center', padding: '40px' }}>{t.admin.users.loading}</td></tr>
+              ) : (
+                users.map(u => (
+                  <tr key={u.id} className={selectedIds.includes(u.id) ? styles.rowSelected : ''}>
+                    <td>
+                      <input type="checkbox" checked={selectedIds.includes(u.id)} onChange={() => toggleSelect(u.id)} />
+                    </td>
+                    <td>{u.id}</td>
+                    <td style={{ fontWeight: 600 }}>{u.name}</td>
+                    <td>{u.phone}</td>
+                    <td>{u.dob || t.common.notAvailable}</td>
+                    <td>{u.gender || t.common.notAvailable}</td>
+                    <td>{u.division || t.common.notAvailable}</td>
+                    <td>{u.total_generations}</td>
+                    <td>{new Date(u.created_at).toLocaleDateString()}</td>
+                    <td>
+                      <button onClick={() => setSelectedUser(u)} className={styles.editBtn}>{t.admin.users.viewDetails}</button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
         <div className={styles.pagination}>
           <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className={styles.secondaryBtn}>{t.admin.users.previous}</button>

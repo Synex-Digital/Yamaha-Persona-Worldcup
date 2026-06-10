@@ -13,6 +13,9 @@
   --bg-card: rgba(20, 20, 22, 0.4);
   --border-card: rgba(255, 255, 255, 0.08);
   --shadow-card: 0 40px 100px rgba(0, 0, 0, 0.6);
+  --border-input: rgba(255, 255, 255, 0.1);
+  --bg-input: var(--bg-surface);
+  --focus-ring: rgba(0, 35, 255, 0.2);
   
   /* Quiz Options */
   --bg-option-card: rgba(255, 255, 255, 0.03);
@@ -62,6 +65,9 @@
   --bg-card: rgba(255, 255, 255, 0.75);
   --border-card: rgba(0, 0, 0, 0.06);
   --shadow-card: 0 40px 100px rgba(0, 0, 0, 0.08);
+  --border-input: rgba(0, 0, 0, 0.15);
+  --bg-input: #ffffff;
+  --focus-ring: rgba(0, 35, 255, 0.15);
   
   /* Quiz Options */
   --bg-option-card: rgba(0, 0, 0, 0.02);
@@ -203,10 +209,11 @@ a {
 }
 
 /* Base Form Elements */
+/* Base Form Elements */
 input, select, textarea {
   font-family: inherit;
-  background: var(--bg-surface);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-input);
+  border: 1px solid var(--border-input);
   color: var(--text-primary);
   padding: 14px 16px;
   border-radius: 8px;
@@ -218,7 +225,7 @@ input, select, textarea {
 input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(0, 35, 255, 0.2);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .primary-button {

@@ -13,89 +13,7 @@ const getClient = () => {
   return new GoogleGenAI({ apiKey: keys[0] });
 };
 
-export async function generatePersonaCopy(personaTitle: string, bikeModel: string): Promise<{
-  text: string;
-  usedKeyIndex?: number;
-  usage?: {
-    promptTokenCount: number;
-    candidatesTokenCount: number;
-  };
-}> {
-  const keys = getApiKeys();
-  const model = process.env.AI_TEXT_MODEL || 'gemini-2.5-flash';
 
-  const prompt = `Write a short, engaging, premium 2-sentence appreciation statement for a user whose riding personality is "${personaTitle}" and matched with the "${bikeModel}". Make it sound like a luxury automotive campaign.`;
-
-  let retries = keys.length * 2; // Retry up to twice per configured key
-  let delay = 1000;
-
-  // Randomize start key index to balance concurrency load
-  let currentKeyIndex = Math.floor(Math.random() * keys.length);
-
-  while (retries > 0) {
-    const apiKey = keys[currentKeyIndex];
-    const client = new GoogleGenAI({ apiKey });
-    const attempt = keys.length * 2 - retries + 1;
-
-    try {
-      const response = await client.models.generateContent({
-        model,
-        contents: prompt,
-        config: {
-          thinkingConfig: {
-            thinkingBudget: 0,
-          },
-        },
-      });
-
-      console.log('[generatePersonaCopy] completed', {
-        attempt,
-        model,
-        usedKeyIndex: currentKeyIndex,
-      });
-
-      return {
-        text: response.text || '',
-        usedKeyIndex: currentKeyIndex,
-        usage: response.usageMetadata ? {
-          promptTokenCount: response.usageMetadata.promptTokenCount || 0,
-          candidatesTokenCount: response.usageMetadata.candidatesTokenCount || 0
-        } : undefined
-      };
-    } catch (error: any) {
-      const failedKeyIndex = currentKeyIndex;
-      currentKeyIndex = (currentKeyIndex + 1) % keys.length; // Rotate key
-
-      if (error.status === 503 && retries > 1) {
-        console.warn(`[generatePersonaCopy] Gemini 503 error on key index ${failedKeyIndex}. Retrying key index ${currentKeyIndex} in ${delay}ms...`, {
-          attempt,
-          retryInMs: delay,
-          error: error.message || error,
-          status: error.status
-        });
-        await new Promise(res => setTimeout(res, delay));
-        retries--;
-        delay *= 2;
-      } else {
-        console.warn(`[generatePersonaCopy] API error on key index ${failedKeyIndex}. Retrying key index ${currentKeyIndex} immediately...`, {
-          attempt,
-          error: error.message || error,
-          status: error.status,
-          retriesLeft: retries - 1
-        });
-        if (retries > 1) {
-          retries--;
-          continue; // Try next key immediately without delay multiplier
-        }
-        break;
-      }
-    }
-  }
-
-  return {
-    text: `Experience the thrill of the ride. You and the ${bikeModel} are a perfect match.`
-  };
-}
 
 const bikeImageCache = new Map<string, { base64: string, mimeType: string }>();
 
@@ -320,4 +238,210 @@ export async function generateCinematicImage(
   }
 
   throw new Error('Gemini image generation failed after retries');
+}
+
+
+
+export async function generatePersonaContent(
+  personaTitle: string,
+  bikeModel: string,
+  rawPrompt: string
+): Promise<{
+  appreciationText: string;
+  optimizedPrompt: string;
+  usedKeyIndex?: number;
+  usage?: {
+    promptTokenCount: number;
+    candidatesTokenCount: number;
+  };
+}> {
+  const keys = getApiKeys();
+  const model = process.env.AI_TEXT_MODEL || 'gemini-2.5-flash';
+
+  console.log('[generatePersonaContent] starting request', {
+    model,
+    rawPromptLength: rawPrompt.length,
+    totalKeys: keys.length,
+  });
+
+  let retries = keys.length * 2; // Retry up to twice per configured key
+  let delay = 1000;
+
+  // Randomize start key index to balance concurrency load
+  let currentKeyIndex = Math.floor(Math.random() * keys.length);
+
+  while (retries > 0) {
+    const apiKey = keys[currentKeyIndex];
+    const client = new GoogleGenAI({ apiKey });
+    const attempt = keys.length * 2 - retries + 1;
+
+    try {
+      const response = await client.models.generateContent({
+        model,
+        contents: `Raw prompt to optimize: ${rawPrompt}`,
+        config: {
+          systemInstruction: `You are a professional designer, luxury copywriter, and expert prompt engineer specializing in premium AI image-generation prompts.
+
+
+
+Your task is to transform the provided inputs into:
+
+1. A short, premium, 2-sentence appreciation statement for a rider whose riding personality is "${personaTitle}" and whose matched motorcycle is "${bikeModel}".
+
+2. A refined, cohesive, high-quality image-generation prompt based on the raw visual prompt.
+
+
+
+Inputs:
+
+- Riding personality: "${personaTitle}"
+
+- Matched motorcycle: "${bikeModel}"
+
+
+
+Appreciation statement requirements:
+
+- Write exactly 2 sentences.
+
+- Make it sound polished, aspirational, and premium, similar to a luxury automotive campaign.
+
+- Celebrate the rider’s personality and the match with the motorcycle.
+
+- Keep it concise, elegant, and emotionally engaging.
+
+- Avoid exaggerated claims, clichés, or overly casual wording.
+
+
+
+Image prompt optimization requirements:
+
+- Preserve all important visual context from the raw prompt.
+
+- Keep key details intact, including:
+
+  - Rider wardrobe and cultural clothing, such as a country jersey, salwar kameez, Punjabi outfit, or any other specified attire.
+
+  - Rider pose, posture, body positioning, and interaction with the motorcycle.
+
+  - Motorcycle identity, model, color, design language, and distinctive features.
+
+  - Authentic Yamaha FZS V4 front-face elements when mentioned.
+
+  - Environment, background, lighting, mood, atmosphere, camera angle, lens style, and cinematic direction.
+
+- Resolve contradictions by choosing the clearest, most visually consistent interpretation.
+
+- Remove repetition, filler, awkward phrasing, fragmented wording, and conflicting descriptions.
+
+- Rewrite the prompt as one unified premium visual description, not as a disconnected list.
+
+- Use realistic, respectful, neutral language that preserves the intended meaning while avoiding unnecessarily sensitive or unsafe wording.
+
+- Keep the motorcycle and wardrobe descriptions visually precise and believable.
+
+- Do not invent major new elements that are not implied by the raw prompt.
+
+- You may improve phrasing, flow, cinematic quality, and visual clarity.
+
+
+
+Output rules:
+
+- Respond only with a valid JSON object.
+
+- Do not include markdown, explanations, comments, or extra text.
+
+- Ensure the JSON is properly escaped and parseable.
+
+
+
+Required JSON schema:
+
+{
+
+  "appreciationText": "Exactly 2 polished sentences celebrating the rider personality and bike match.",
+
+  "optimizedPrompt": "A single polished, cohesive, premium image-generation prompt preserving the original visual context."
+
+}`,
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: 'OBJECT',
+            properties: {
+              appreciationText: {
+                type: 'STRING',
+                description: 'A short, engaging, premium 2-sentence appreciation statement.'
+              },
+              optimizedPrompt: {
+                type: 'STRING',
+                description: 'The refined, optimized visual prompt description for image generation.'
+              }
+            },
+            required: ['appreciationText', 'optimizedPrompt']
+          },
+          thinkingConfig: {
+            thinkingBudget: 0,
+          },
+        },
+      });
+
+      const text = response.text?.trim();
+      if (text) {
+        const parsed = JSON.parse(text);
+        if (parsed.appreciationText && parsed.optimizedPrompt) {
+          console.log('[generatePersonaContent] completed successfully', {
+            attempt,
+            model,
+            usedKeyIndex: currentKeyIndex,
+            appreciationLength: parsed.appreciationText.length,
+            optimizedPromptLength: parsed.optimizedPrompt.length,
+          });
+          return {
+            appreciationText: parsed.appreciationText.trim(),
+            optimizedPrompt: parsed.optimizedPrompt.trim(),
+            usedKeyIndex: currentKeyIndex,
+            usage: response.usageMetadata ? {
+              promptTokenCount: response.usageMetadata.promptTokenCount || 0,
+              candidatesTokenCount: response.usageMetadata.candidatesTokenCount || 0
+            } : undefined
+          };
+        }
+      }
+      throw new Error('Invalid or empty structured response from model');
+    } catch (error: any) {
+      const failedKeyIndex = currentKeyIndex;
+      currentKeyIndex = (currentKeyIndex + 1) % keys.length; // Rotate key
+
+      if (error.status === 503 && retries > 1) {
+        console.warn(`[generatePersonaContent] Gemini 503 error on key index ${failedKeyIndex}. Retrying key index ${currentKeyIndex} in ${delay}ms...`, {
+          attempt,
+          retryInMs: delay,
+          error: error.message || error,
+          status: error.status
+        });
+        await new Promise(res => setTimeout(res, delay));
+        retries--;
+        delay *= 2;
+      } else {
+        console.warn(`[generatePersonaContent] API error on key index ${failedKeyIndex}. Retrying key index ${currentKeyIndex} immediately...`, {
+          attempt,
+          error: error.message || error,
+          status: error.status,
+          retriesLeft: retries - 1
+        });
+        if (retries > 1) {
+          retries--;
+          continue;
+        }
+        break;
+      }
+    }
+  }
+
+  console.warn('[generatePersonaContent] Failed to generate combined content. Using fallbacks.');
+  return {
+    appreciationText: `Experience the thrill of the ride. You and the ${bikeModel} are a perfect match.`,
+    optimizedPrompt: rawPrompt
+  };
 }

@@ -21,9 +21,21 @@ export async function POST(req: Request) {
     // Check against env variables
     const adminUsername = process.env.ADMIN_USERNAME;
     const adminPassword = process.env.ADMIN_PASSWORD;
+    const superAdminUsername = process.env.SUPER_ADMIN_USERNAME;
+    const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;
 
     if (!adminUsername || !adminPassword) {
       return NextResponse.json({ error: 'Admin credentials not configured' }, { status: 500 });
+    }
+
+    if (superAdminUsername && superAdminPassword && username === superAdminUsername && password === superAdminPassword) {
+      // Generate token for super admin
+      const token = await generateToken({ username, role: 'superadmin' });
+      
+      // Set cookie
+      await setAuthCookie(token);
+
+      return NextResponse.json({ success: true, message: 'Logged in successfully' });
     }
 
     if (username === adminUsername && password === adminPassword) {

@@ -6,7 +6,10 @@ import { z } from 'zod';
 async function checkAdmin() {
   const token = await getAuthCookie();
   if (!token) throw new Error('Unauthorized');
-  await verifyAuth(token);
+  const payload = await verifyAuth(token);
+  if (payload.role !== 'superadmin') {
+    throw new Error('Forbidden');
+  }
 }
 
 const bikeMappingSchema = z.object({
@@ -80,7 +83,10 @@ export async function GET(req: Request) {
         bike_mappings: mappingMap.get(option.id) || [],
       })),
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Forbidden') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 }
@@ -123,7 +129,13 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Forbidden') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     return NextResponse.json({ error: 'Error adding option' }, { status: 500 });
   }
 }
@@ -171,7 +183,13 @@ export async function PUT(req: Request) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Forbidden') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     return NextResponse.json({ error: 'Error updating option' }, { status: 500 });
   }
 }
@@ -183,7 +201,13 @@ export async function DELETE(req: Request) {
     const id = searchParams.get('id');
     await query('DELETE FROM quiz_options WHERE id = ?', [id]);
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Forbidden') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    if (error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     return NextResponse.json({ error: 'Error deleting option' }, { status: 500 });
   }
 }

@@ -1,7 +1,17 @@
-require('dotenv').config({ path: '.env.local' });
-const mysql = require('mysql2/promise');
 const fs = require('fs');
 const path = require('path');
+
+// Load environment files sequentially. Local overrides (.env.local) take precedence over production defaults (.env.production).
+const envFiles = ['.env', '.env.production', '.env.local'];
+for (const file of envFiles) {
+  const envPath = path.resolve(__dirname, '..', file);
+  if (fs.existsSync(envPath)) {
+    require('dotenv').config({ path: envPath, override: true });
+    console.log(`Loaded environment from ${file}`);
+  }
+}
+
+const mysql = require('mysql2/promise');
 
 async function addColumnIfMissing(pool, tableName, columnName, sqlDefinition) {
   const [rows] = await pool.query(
@@ -90,6 +100,7 @@ async function runMigration() {
     await addColumnIfMissing(pool, 'generations', 'final_prompt', 'final_prompt LONGTEXT NULL');
     await addColumnIfMissing(pool, 'generations', 'resolved_bike_color', 'resolved_bike_color VARCHAR(255) NULL');
     await addColumnIfMissing(pool, 'generations', 'selection_meta', 'selection_meta JSON NULL');
+    await addColumnIfMissing(pool, 'generations', 'performance_meta', 'performance_meta JSON NULL');
 
     // Backfill legacy bike mappings with evenly distributed weights.
     const [options] = await pool.query(

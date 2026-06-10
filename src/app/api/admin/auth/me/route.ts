@@ -12,7 +12,10 @@ export async function GET() {
     
     return NextResponse.json({ 
       authenticated: true,
-      user: { username: payload.username }
+      user: { 
+        username: payload.username,
+        role: payload.role || 'admin'
+      }
     });
   } catch (error) {
     return NextResponse.json({ authenticated: false }, { status: 401 });

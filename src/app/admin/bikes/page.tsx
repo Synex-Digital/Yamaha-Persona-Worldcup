@@ -146,19 +146,17 @@ export default function BikesPage() {
             placeholder="English Description" 
             value={newBike.description} 
             onChange={e => setNewBike({ ...newBike, description: e.target.value })} 
-            className={styles.textarea} 
+            className={`${styles.textarea} ${styles.span2}`} 
             rows={2} 
-            style={{ gridColumn: 'span 2' }} 
           />
           <textarea 
             placeholder="Bengali Description (Bangla)" 
             value={newBike.description_bn} 
             onChange={e => setNewBike({ ...newBike, description_bn: e.target.value })} 
-            className={styles.textarea} 
+            className={`${styles.textarea} ${styles.span2}`} 
             rows={2} 
-            style={{ gridColumn: 'span 2' }} 
           />
-          <button type="submit" className={styles.primaryBtn} style={{ gridColumn: 'span 2' }}>
+          <button type="submit" className={`${styles.primaryBtn} ${styles.span2}`}>
             <Icons.Plus /> {t.admin.bikes.registerBike}
           </button>
         </form>
@@ -166,35 +164,37 @@ export default function BikesPage() {
 
       {/* Bikes Inventory List Table */}
       <div className={styles.card}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>{t.admin.bikes.cols.model}</th>
-              <th>{t.admin.bikes.cols.type}</th>
-              <th>{t.admin.bikes.cols.colors}</th>
-              <th style={{ textAlign: 'right' }}>{t.admin.bikes.cols.actions}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bikes.map(b => (
-              <tr key={b.id}>
-                <td style={{ fontWeight: 600 }}>{b.model_name}</td>
-                <td>{b.type}</td>
-                <td style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>
-                  {JSON.parse(b.colors || '[]').join(', ')}
-                </td>
-                <td style={{ textAlign: 'right' }}>
-                  <button onClick={() => startEditBike(b)} className={styles.editBtn}>
-                    {t.common.edit}
-                  </button>
-                  <button onClick={() => handleDeleteBike(b.id)} className={styles.dangerBtn}>
-                    {t.common.delete}
-                  </button>
-                </td>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t.admin.bikes.cols.model}</th>
+                <th>{t.admin.bikes.cols.type}</th>
+                <th>{t.admin.bikes.cols.colors}</th>
+                <th style={{ textAlign: 'right' }}>{t.admin.bikes.cols.actions}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {bikes.map(b => (
+                <tr key={b.id}>
+                  <td style={{ fontWeight: 600 }}>{b.model_name}</td>
+                  <td>{b.type}</td>
+                  <td style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>
+                    {JSON.parse(b.colors || '[]').join(', ')}
+                  </td>
+                  <td style={{ textAlign: 'right' }}>
+                    <button onClick={() => startEditBike(b)} className={styles.editBtn}>
+                      {t.common.edit}
+                    </button>
+                    <button onClick={() => handleDeleteBike(b.id)} className={styles.dangerBtn}>
+                      {t.common.delete}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Edit Bike Modal */}
