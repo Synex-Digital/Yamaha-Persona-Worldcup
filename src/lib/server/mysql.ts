@@ -13,7 +13,6 @@ const pool = mysql.createPool({
   connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '50'),
   queueLimit: 0,
   multipleStatements: true, // Needed for running schema.sql
-  timezone: '+06:00', // Bangladesh Standard Time (BST)
 });
 
 /**
@@ -32,7 +31,7 @@ export async function initializeDatabase() {
   try {
     const schemaPath = path.join(process.cwd(), 'src/lib/server/schema.sql');
     const schema = fs.readFileSync(schemaPath, 'utf8');
-    
+
     console.log('Running database initialization...');
     await pool.query(schema);
     console.log('Database initialized successfully.');
