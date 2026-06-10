@@ -124,6 +124,7 @@ export default function Upload() {
   const [quizData, setQuizData] = useState<any>(null);
   const resumeAttemptedRef = useRef(false);
   const previewUrlRef = useRef<string | null>(null);
+  const [isUnauthorized, setIsUnauthorized] = useState(false);
 
   const restoreSavedFile = async () => {
     const savedBlob = await loadPendingFile();
@@ -164,16 +165,26 @@ export default function Upload() {
   };
 
   const checkExistingGeneration = async (requestId: string) => {
-    const res = await fetch(`/api/generate?requestId=${requestId}`, {
-      cache: 'no-store',
-    });
+    try {
+      const res = await fetch(`/api/generate?requestId=${requestId}`, {
+        cache: 'no-store',
+      });
 
-    if (!res.ok) {
+      if (res.status === 401) {
+        setIsUnauthorized(true);
+        setError(t.upload.unauthorizedError);
+        return null;
+      }
+
+      if (!res.ok) {
+        return null;
+      }
+
+      const data = await res.json();
+      return data as GenerationStatusResponse;
+    } catch {
       return null;
     }
-
-    const data = await res.json();
-    return data as GenerationStatusResponse;
   };
 
   const waitForGenerationCompletion = async (pendingGeneration: PendingGeneration) => {
@@ -377,6 +388,13 @@ export default function Upload() {
       });
       const data = await res.json();
 
+      if (res.status === 401 || data?.error === 'Unauthorized') {
+        setIsUnauthorized(true);
+        setError(t.upload.unauthorizedError);
+        setLoading(false);
+        return;
+      }
+
       if (res.status === 403) {
         await clearPendingGeneration({ keepFile: true });
         router.replace('/thank-you');
@@ -574,6 +592,20 @@ export default function Upload() {
     router.push('/');
   };
 
+  const handleStartOver = async () => {
+    localStorage.removeItem('isAuthenticated');
+    sessionStorage.removeItem('quizState');
+    sessionStorage.removeItem('quizResult');
+    await clearPendingGeneration();
+    setFile(null);
+    setPreview(null);
+    setQuizData(null);
+    setError('');
+    setRetryMode('hidden');
+    setIsUnauthorized(false);
+    router.push('/');
+  };
+
   if (loading) {
     return (
       <main className="page-container">
@@ -626,23 +658,35 @@ export default function Upload() {
           style={{ display: 'none' }}
         />
 
-        <button
-          className="primary-button"
-          disabled={!file}
-          onClick={handleGenerate}
-          style={{ marginTop: '16px' }}
-        >
-          {t.upload.generateButton}
-        </button>
-
-        {retryMode !== 'hidden' && (
+        {isUnauthorized ? (
           <button
-            className={styles.retryButton}
-            onClick={handleCreateAgain}
-            style={{ marginTop: '12px' }}
+            className="primary-button"
+            onClick={handleStartOver}
+            style={{ marginTop: '16px', backgroundColor: '#ff4d4d', borderColor: '#ff4d4d' }}
           >
-            {t.upload.createAgain}
+            {t.upload.restartSession}
           </button>
+        ) : (
+          <>
+            <button
+              className="primary-button"
+              disabled={!file}
+              onClick={handleGenerate}
+              style={{ marginTop: '16px' }}
+            >
+              {t.upload.generateButton}
+            </button>
+
+            {retryMode !== 'hidden' && (
+              <button
+                className={styles.retryButton}
+                onClick={handleCreateAgain}
+                style={{ marginTop: '12px' }}
+              >
+                {t.upload.createAgain}
+              </button>
+            )}
+          </>
         )}
       </div>
     </main>

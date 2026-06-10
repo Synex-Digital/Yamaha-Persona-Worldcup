@@ -78,6 +78,8 @@ export const translations = {
       tapToChange: 'Tap to change',
       generateButton: 'Generate My Persona',
       createAgain: 'Create Again',
+      restartSession: 'Start Again',
+      unauthorizedError: 'Your session has expired. Please clear cache and restart.',
       fileTooLarge: 'File size must be less than 6MB',
       loadingMessages: [
         'Analyzing facial features...',
@@ -421,6 +423,8 @@ export const translations = {
       tapToChange: 'পরিবর্তন করতে চাপ দিন',
       generateButton: 'আমার পার্সোনা তৈরি করুন',
       createAgain: 'আবার তৈরি করুন',
+      restartSession: 'আবার শুরু করুন',
+      unauthorizedError: 'আপনার সেশনের মেয়াদ শেষ হয়ে গেছে। দয়া করে আবার শুরু করুন।',
       fileTooLarge: 'ফাইলের আকার ৬ এমবির কম হতে হবে',
       loadingMessages: [
         'মুখের বৈশিষ্ট্য বিশ্লেষণ করা হচ্ছে...',
