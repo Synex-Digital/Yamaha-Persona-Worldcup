@@ -1,5 +1,6 @@
 import { jwtVerify, SignJWT } from 'jose';
 import { cookies } from 'next/headers';
+import { validateSession } from '@/lib/server/sessionStore';
 
 const getJwtSecretKey = () => {
   const secret = process.env.ADMIN_SESSION_SECRET;
@@ -15,6 +16,12 @@ export const verifyAuth = async (token: string) => {
       token,
       new TextEncoder().encode(getJwtSecretKey())
     );
+    
+    const sessionId = verified.payload.sessionId as string | undefined;
+    if (!sessionId || !(await validateSession(sessionId))) {
+      throw new Error('Your session has been revoked or is invalid.');
+    }
+    
     return verified.payload;
   } catch (err) {
     throw new Error('Your token has expired.');

@@ -152,7 +152,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </button>
         <div className={styles.mobileBrand}>
           <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#007aff' }}></div>
-          {t.admin.brand}
+          {role === 'superadmin' ? t.admin.brandSuperAdmin : t.admin.brandAdmin}
         </div>
         <div style={{ width: 40 }}></div>
       </div>
@@ -163,7 +163,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.brand}>
           <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#007aff' }}></div>
-          <span style={{ flex: 1 }}>{t.admin.brand}</span>
+          <span style={{ flex: 1 }}>{role === 'superadmin' ? t.admin.brandSuperAdmin : t.admin.brandAdmin}</span>
           <button 
             className={styles.sidebarCloseBtn} 
             onClick={() => setSidebarOpen(false)}

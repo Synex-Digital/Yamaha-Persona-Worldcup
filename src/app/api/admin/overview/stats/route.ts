@@ -6,7 +6,7 @@ async function checkAdmin() {
   const token = await getAuthCookie();
   if (!token) throw new Error('Unauthorized');
   const payload = await verifyAuth(token);
-  if (payload.role !== 'admin') {
+  if (payload.role !== 'admin' && payload.role !== 'superadmin') {
     throw new Error('Forbidden');
   }
 }
