@@ -332,7 +332,7 @@ export default function AdminOverview() {
           position: 'relative',
           overflow: 'hidden'
         }}>
-          <div style={{ position: 'absolute', top: '16px', right: '20px', fontSize: '24px', opacity: 0.2 }}>👥</div>
+          <div style={{ position: 'absolute', top: '16px', right: '20px', fontSize: '24px' }}>👥</div>
           <div className={styles.statValue} style={{ fontSize: '42px', fontWeight: 800, color: 'white', letterSpacing: '-1px', marginBottom: '4px' }}>{stats.users}</div>
           <div className={styles.statLabel} style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>{t.admin.overview.totalUsers}</div>
         </div>
@@ -347,7 +347,7 @@ export default function AdminOverview() {
           position: 'relative',
           overflow: 'hidden'
         }}>
-          <div style={{ position: 'absolute', top: '16px', right: '20px', fontSize: '24px', opacity: 0.2 }}>🖼️</div>
+          <div style={{ position: 'absolute', top: '16px', right: '20px', fontSize: '24px' }}>🖼️</div>
           <div className={styles.statValue} style={{ fontSize: '42px', fontWeight: 800, color: 'white', letterSpacing: '-1px', marginBottom: '4px' }}>{stats.generations}</div>
           <div className={styles.statLabel} style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>{t.admin.overview.totalGenerations}</div>
         </div>
@@ -363,7 +363,7 @@ export default function AdminOverview() {
             position: 'relative',
             overflow: 'hidden'
           }}>
-            <div style={{ position: 'absolute', top: '16px', right: '20px', fontSize: '24px', opacity: 0.2 }}>💵</div>
+            <div style={{ position: 'absolute', top: '16px', right: '20px', fontSize: '24px' }}>💵</div>
             <div className={styles.statValue} style={{ fontSize: '42px', fontWeight: 800, color: 'white', letterSpacing: '-1px', marginBottom: '4px' }}>
               ${stats.totalCost.toFixed(3)}
             </div>
@@ -382,7 +382,7 @@ export default function AdminOverview() {
             position: 'relative',
             overflow: 'hidden'
           }}>
-            <div style={{ position: 'absolute', top: '16px', right: '20px', fontSize: '24px', opacity: 0.2 }}>⚡</div>
+            <div style={{ position: 'absolute', top: '16px', right: '20px', fontSize: '24px' }}>⚡</div>
             <div className={styles.statValue} style={{ fontSize: '42px', fontWeight: 800, color: 'white', letterSpacing: '-1px', marginBottom: '4px' }}>
               {(stats.avgDurationMs / 1000).toFixed(1)}s
             </div>
@@ -410,7 +410,7 @@ export default function AdminOverview() {
               <div className={styles.statValue} style={{ fontSize: '24px', fontWeight: 700, color: 'white' }}>{stats.bikes}</div>
               <div className={styles.statLabel} style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '2px' }}>{t.admin.overview.availableBikes}</div>
             </div>
-            <div style={{ fontSize: '20px', opacity: 0.5 }}>🏍️</div>
+            <div style={{ fontSize: '20px' }}>🏍️</div>
           </div>
 
           {/* Quiz Questions */}
@@ -429,7 +429,7 @@ export default function AdminOverview() {
               <div className={styles.statValue} style={{ fontSize: '24px', fontWeight: 700, color: 'white' }}>{stats.questions}</div>
               <div className={styles.statLabel} style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '2px' }}>{t.admin.overview.quizQuestions}</div>
             </div>
-            <div style={{ fontSize: '20px', opacity: 0.5 }}>❓</div>
+            <div style={{ fontSize: '20px' }}>❓</div>
           </div>
 
           {/* Average Tokens */}
@@ -450,7 +450,7 @@ export default function AdminOverview() {
               </div>
               <div className={styles.statLabel} style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '2px' }}>Avg Tokens / Gen</div>
             </div>
-            <div style={{ fontSize: '20px', opacity: 0.5 }}>📊</div>
+            <div style={{ fontSize: '20px' }}>📊</div>
           </div>
         </div>
       )}
