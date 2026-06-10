@@ -41,6 +41,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/src/lib/server/schema.sql ./src/l
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 
+# Pre-create scratch directory and set ownership to nextjs
+RUN mkdir -p /app/scratch && chown -R nextjs:nodejs /app/scratch
+
 USER nextjs
 
 EXPOSE 3000
