@@ -39,7 +39,8 @@ export async function getLifetimeStats() {
         AVG(
           COALESCE(JSON_UNQUOTE(JSON_EXTRACT(performance_meta, '$.textTokens.prompt')), 0) +
           COALESCE(JSON_UNQUOTE(JSON_EXTRACT(performance_meta, '$.textTokens.candidates')), 0) +
-          COALESCE(JSON_UNQUOTE(JSON_EXTRACT(performance_meta, '$.imageTokens.prompt')), 0)
+          COALESCE(JSON_UNQUOTE(JSON_EXTRACT(performance_meta, '$.imageTokens.prompt')), 0) +
+          COALESCE(JSON_UNQUOTE(JSON_EXTRACT(performance_meta, '$.imageTokens.candidates')), 0)
         ) as avgTokens
       FROM generations
       WHERE performance_meta IS NOT NULL

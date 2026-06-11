@@ -388,9 +388,9 @@ export default function Upload() {
       });
       const data = await res.json();
 
-      if (res.status === 401 || data?.error === 'Unauthorized') {
+      if (res.status === 401 || res.status === 429 || data?.error === 'Unauthorized') {
         setIsUnauthorized(true);
-        setError(t.upload.unauthorizedError);
+        setError(data?.error || t.upload.unauthorizedError);
         setLoading(false);
         return;
       }

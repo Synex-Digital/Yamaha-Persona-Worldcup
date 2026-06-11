@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useLanguage } from '@/components/i18n/LanguageProvider';
 import styles from '../result.module.css';
 import ResultActions from './ResultActions';
@@ -22,6 +23,15 @@ export default function ResultView({
   const { language, t } = useLanguage();
   const isFailed = status === 'failed';
   const personaTitle = language === 'bn' ? `${name}${t.result.personaTitleSuffix}` : `${name}${t.result.personaTitleSuffix}`;
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    // Secondary fallback for various mobile webviews/browsers
+    if (typeof document !== 'undefined') {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
+  }, []);
 
   return (
     <main className="page-container">
