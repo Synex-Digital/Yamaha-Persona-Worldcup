@@ -16,7 +16,6 @@ const getClient = () => {
 
 
 const bikeImageCache = new Map<string, { base64: string, mimeType: string }>();
-const keyCooldowns = new Map<number, number>(); // Stores timestamp when a rate-limited key is safe to use again
 
 /**
  * Downloads and caches the optimized bike reference image in RAM.
@@ -91,16 +90,6 @@ export async function generateCinematicImage(
   const totalAttempts = retries;
 
   while (retries > 0) {
-    // If the key is on cooldown, skip it immediately (unless all keys are somehow on cooldown)
-    if ((keyCooldowns.get(currentKeyIndex) || 0) > Date.now()) {
-      const allOnCooldown = keys.every((_, idx) => (keyCooldowns.get(idx) || 0) > Date.now());
-      if (!allOnCooldown) {
-        console.warn(`[generateCinematicImage] Skipping key index ${currentKeyIndex} due to active cooldown.`);
-        currentKeyIndex = (currentKeyIndex + 1) % keys.length;
-        continue; // Skip without reducing retries
-      }
-    }
-
     const apiKey = keys[currentKeyIndex];
     const attempt = totalAttempts - retries + 1;
     const attemptStartedAt = Date.now();
@@ -220,11 +209,6 @@ export async function generateCinematicImage(
       const failedKeyIndex = currentKeyIndex;
       currentKeyIndex = (currentKeyIndex + 1) % keys.length;
 
-      if (isTransient) {
-        // Place the exhausted key on a 30-second cooldown
-        keyCooldowns.set(failedKeyIndex, Date.now() + 30000);
-      }
-
       if (isTransient && retries > 1) {
         const isFullCycle = attempt % keys.length === 0;
         const currentDelay = isFullCycle ? delay : 0;
@@ -302,7 +286,7 @@ export async function generatePersonaContent(
         model,
         contents: `Rider Personality: ${personaTitle}\nMatched Motorcycle: ${bikeModel}\nRaw prompt to optimize: ${rawPrompt}`,
         config: {
-          systemInstruction: `Role: Premium AI Creative Director for Nano Banana 2.\nObjective: Transform inputs into a luxury JSON response containing a brand appreciation and a highly-efficient, purely visual image prompt.\n\nTask 1 (appreciationText):\n- Write exactly 2 premium, editorial-style sentences blending the rider's personality and bike match.\n- Tone: Sophisticated, timeless, and celebratory. No clichés.\n\nTask 2 (optimizedPrompt):\n- Convert raw context into a concise, purely visual prompt for an image generation model.\n- MUST BE UNDER 700 CHARACTERS. Keep it short, punchy, and highly descriptive.\n- STRICTLY VISUAL: Strip out all abstract concepts (e.g., "proud spirit", "sophisticated"). Describe only what can be seen (lighting, clothing, posture, bike, environment).\n- Preserve cultural attire, exact bike models, and specific postures/actions.\n- Enhance with concrete cinematic lighting and camera specs (e.g., 85mm lens, f/1.8).`,
+          systemInstruction: `Role: Premium AI Creative Director for Nano Banana 2.\nObjective: Transform inputs into a luxury JSON response containing a brand appreciation and a highly-efficient, purely visual image prompt.\n\nTask 1 (appreciationText):\n- Write exactly 2 premium, editorial-style sentences blending the rider's personality and bike match.\n- Tone: Sophisticated, timeless, and celebratory. No clichés.\n\nTask 2 (optimizedPrompt):\n- Convert raw context into a concise, purely visual prompt for an image generation model.\n- MUST BE UNDER 500 CHARACTERS. Keep it short, punchy, and highly descriptive.\n- STRICTLY VISUAL: Strip out all abstract concepts (e.g., "proud spirit", "sophisticated"). Describe only what can be seen (lighting, clothing, posture, bike, environment).\n- Preserve cultural attire, exact bike models, and specific postures/actions.\n- Enhance with concrete cinematic lighting and camera specs (e.g., 85mm lens, f/1.8).`,
           responseMimeType: 'application/json',
           responseSchema: {
             type: 'OBJECT',
