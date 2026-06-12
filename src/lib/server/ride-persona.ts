@@ -73,6 +73,8 @@ const NEGATIVE_PROMPT_TERMS = [
   'rusted pipe'
 ] as const;
 
+
+
 function parseJsonRecord<T>(value: unknown, fallback: T): T {
   if (!value) return fallback;
   if (typeof value === 'object') return value as T;
@@ -145,6 +147,8 @@ function selectRandomPose() {
 function buildNegativePromptBlock() {
   return `Negative prompt: ${NEGATIVE_PROMPT_TERMS.join(', ')}.`;
 }
+
+
 
 function buildFinalMood(destinationMood: string, aspiration: string) {
   return `${destinationMood} ${aspiration}`.replace(/\s+/g, ' ').trim();

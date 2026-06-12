@@ -69,7 +69,7 @@ export async function generateCinematicImage(
   let retries = keys.length * 2; // Retry up to twice per configured key
   let delay = 2000;
   const startedAt = Date.now();
-  const referenceImageCopies = 3;
+  const referenceImageCopies = 1;
 
   // Randomize start key index to balance concurrency load
   let currentKeyIndex = Math.floor(Math.random() * keys.length);
@@ -210,16 +210,22 @@ export async function generateCinematicImage(
       currentKeyIndex = (currentKeyIndex + 1) % keys.length;
 
       if (isTransient && retries > 1) {
-        console.warn(`[generateCinematicImage] Gemini transient error detected on key index ${failedKeyIndex}. Retrying with key index ${currentKeyIndex} in ${delay}ms...`, {
+        const isFullCycle = attempt % keys.length === 0;
+        const currentDelay = isFullCycle ? delay : 0;
+
+        console.warn(`[generateCinematicImage] Gemini transient error detected on key index ${failedKeyIndex}. Retrying with key index ${currentKeyIndex} in ${currentDelay}ms...`, {
           attempt,
-          retryInMs: delay,
+          retryInMs: currentDelay,
           elapsedMs: Date.now() - startedAt,
           error: err.message || err,
           status: err.status
         });
-        await new Promise(res => setTimeout(res, delay));
+
+        if (currentDelay > 0) {
+          await new Promise(res => setTimeout(res, currentDelay));
+          delay *= 2;
+        }
         retries--;
-        delay *= 2;
       } else {
         console.error(`[generateCinematicImage] permanent or final failure on key index ${failedKeyIndex}`, {
           elapsedMs: Date.now() - startedAt,
@@ -278,93 +284,9 @@ export async function generatePersonaContent(
     try {
       const response = await client.models.generateContent({
         model,
-        contents: `Raw prompt to optimize: ${rawPrompt}`,
+        contents: `Rider Personality: ${personaTitle}\nMatched Motorcycle: ${bikeModel}\nRaw prompt to optimize: ${rawPrompt}`,
         config: {
-          systemInstruction: `You are a professional designer, luxury copywriter, and expert prompt engineer specializing in premium AI image-generation prompts.
-
-
-
-Your task is to transform the provided inputs into:
-
-1. A short, premium, 2-sentence appreciation statement for a rider whose riding personality is "${personaTitle}" and whose matched motorcycle is "${bikeModel}".
-
-2. A refined, cohesive, high-quality image-generation prompt based on the raw visual prompt.
-
-
-
-Inputs:
-
-- Riding personality: "${personaTitle}"
-
-- Matched motorcycle: "${bikeModel}"
-
-
-
-Appreciation statement requirements:
-
-- Write exactly 2 sentences.
-
-- Make it sound polished, aspirational, and premium, similar to a luxury automotive campaign.
-
-- Celebrate the rider’s personality and the match with the motorcycle.
-
-- Keep it concise, elegant, and emotionally engaging.
-
-- Avoid exaggerated claims, clichés, or overly casual wording.
-
-
-
-Image prompt optimization requirements:
-
-- Preserve all important visual context from the raw prompt.
-
-- Keep key details intact, including:
-
-  - Rider wardrobe and cultural clothing, such as a country jersey, salwar kameez, Punjabi outfit, or any other specified attire.
-
-  - Rider pose, posture, body positioning, and interaction with the motorcycle.
-
-  - Motorcycle identity, model, color, design language, and distinctive features.
-
-  - Authentic Yamaha FZS V4 front-face elements when mentioned.
-
-  - Environment, background, lighting, mood, atmosphere, camera angle, lens style, and cinematic direction.
-
-- Resolve contradictions by choosing the clearest, most visually consistent interpretation.
-
-- Remove repetition, filler, awkward phrasing, fragmented wording, and conflicting descriptions.
-
-- Rewrite the prompt as one unified premium visual description, not as a disconnected list.
-
-- Use realistic, respectful, neutral language that preserves the intended meaning while avoiding unnecessarily sensitive or unsafe wording.
-
-- Keep the motorcycle and wardrobe descriptions visually precise and believable.
-
-- Do not invent major new elements that are not implied by the raw prompt.
-
-- You may improve phrasing, flow, cinematic quality, and visual clarity.
-
-
-
-Output rules:
-
-- Respond only with a valid JSON object.
-
-- Do not include markdown, explanations, comments, or extra text.
-
-- Ensure the JSON is properly escaped and parseable.
-
-
-
-Required JSON schema:
-
-{
-
-  "appreciationText": "Exactly 2 polished sentences celebrating the rider personality and bike match.",
-
-  "optimizedPrompt": "A single polished, cohesive, premium image-generation prompt preserving the original visual context."
-
-}`,
+          systemInstruction: `Role: Premium AI Creative Director for Nano Banana 2.\nObjective: Transform inputs into a luxury JSON response containing a brand appreciation and a highly-efficient, purely visual image prompt.\n\nTask 1 (appreciationText):\n- Write exactly 2 premium, editorial-style sentences blending the rider's personality and bike match.\n- Tone: Sophisticated, timeless, and celebratory. No clichés.\n\nTask 2 (optimizedPrompt):\n- Convert raw context into a concise, purely visual prompt for an image generation model.\n- MUST BE UNDER 700 CHARACTERS. Keep it short, punchy, and highly descriptive.\n- STRICTLY VISUAL: Strip out all abstract concepts (e.g., "proud spirit", "sophisticated"). Describe only what can be seen (lighting, clothing, posture, bike, environment).\n- Preserve cultural attire, exact bike models, and specific postures/actions.\n- Enhance with concrete cinematic lighting and camera specs (e.g., 85mm lens, f/1.8).`,
           responseMimeType: 'application/json',
           responseSchema: {
             type: 'OBJECT',
@@ -413,16 +335,23 @@ Required JSON schema:
       const failedKeyIndex = currentKeyIndex;
       currentKeyIndex = (currentKeyIndex + 1) % keys.length; // Rotate key
 
-      if (error.status === 503 && retries > 1) {
-        console.warn(`[generatePersonaContent] Gemini 503 error on key index ${failedKeyIndex}. Retrying key index ${currentKeyIndex} in ${delay}ms...`, {
+      const isTransient = error.status === 503 || error.status === 429;
+      if (isTransient && retries > 1) {
+        const isFullCycle = attempt % keys.length === 0;
+        const currentDelay = isFullCycle ? delay : 0;
+
+        console.warn(`[generatePersonaContent] Gemini transient error on key index ${failedKeyIndex}. Retrying key index ${currentKeyIndex} in ${currentDelay}ms...`, {
           attempt,
-          retryInMs: delay,
+          retryInMs: currentDelay,
           error: error.message || error,
           status: error.status
         });
-        await new Promise(res => setTimeout(res, delay));
+
+        if (currentDelay > 0) {
+          await new Promise(res => setTimeout(res, currentDelay));
+          delay *= 2;
+        }
         retries--;
-        delay *= 2;
       } else {
         console.warn(`[generatePersonaContent] API error on key index ${failedKeyIndex}. Retrying key index ${currentKeyIndex} immediately...`, {
           attempt,
