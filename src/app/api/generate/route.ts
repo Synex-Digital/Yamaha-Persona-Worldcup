@@ -318,8 +318,8 @@ export async function POST(req: Request) {
         imageUsedKeyIndex = result.usedKeyIndex;
       }
     } catch (aiError: any) {
-      console.error('Gemini Image Generation Failed. Triggering premium fallback card...', aiError);
-      generationStatus = 'failed';
+      console.error('Gemini Image Generation Failed.', aiError);
+      throw aiError; // Throw so the frontend catches the timeout error
     }
 
     // Cost calculation & log output
@@ -562,7 +562,9 @@ export async function POST(req: Request) {
     
     if (error.message) {
       const msg = error.message.toLowerCase();
-      if (msg.includes('503') || msg.includes('overloaded')) {
+      if (msg.includes('high usage')) {
+        errorMessage = error.message;
+      } else if (msg.includes('503') || msg.includes('overloaded')) {
         errorMessage = messages.aiOverloaded;
       } else if (msg.includes('safety') || msg.includes('blocked') || msg.includes('policy')) {
         errorMessage = messages.aiSafety;

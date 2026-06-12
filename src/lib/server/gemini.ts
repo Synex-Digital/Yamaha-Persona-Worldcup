@@ -66,7 +66,7 @@ export async function generateCinematicImage(
   const keys = getApiKeys();
   const model = process.env.AI_IMAGE_MODEL || 'gemini-3.1-flash-image-preview';
 
-  let retries = keys.length * 2; // Retry up to twice per configured key
+  let retries = 3; // Maximum 3 attempts
   let delay = 2000;
   const startedAt = Date.now();
   const referenceImageCopies = 1;
@@ -92,6 +92,11 @@ export async function generateCinematicImage(
   while (retries > 0) {
     const apiKey = keys[currentKeyIndex];
     const attempt = totalAttempts - retries + 1;
+    let timeoutMs = 40000;
+    if (attempt === 1) timeoutMs = 150000;
+    else if (attempt === 2) timeoutMs = 90000;
+    else if (attempt === 3) timeoutMs = 40000;
+
     const attemptStartedAt = Date.now();
     try {
       let enhancedPrompt = imagePrompt;
@@ -146,7 +151,7 @@ export async function generateCinematicImage(
             }
           }
         }),
-        signal: AbortSignal.timeout(60000) // Timeout after 60 seconds to prevent hanging threads
+        signal: AbortSignal.timeout(timeoutMs) // Dynamic timeout based on attempt number
       });
 
       if (!response.ok) {
@@ -243,7 +248,7 @@ export async function generateCinematicImage(
     }
   }
 
-  throw new Error('Gemini image generation failed after retries');
+  throw new Error('Our AI model is experiencing high usage. Please try again later.');
 }
 
 
