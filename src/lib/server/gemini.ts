@@ -16,6 +16,7 @@ const getClient = () => {
 
 
 const bikeImageCache = new Map<string, { base64: string, mimeType: string }>();
+const keyCooldowns = new Map<number, number>(); // Stores timestamp when a rate-limited key is safe to use again
 
 /**
  * Downloads and caches the optimized bike reference image in RAM.
@@ -90,6 +91,16 @@ export async function generateCinematicImage(
   const totalAttempts = retries;
 
   while (retries > 0) {
+    // If the key is on cooldown, skip it immediately (unless all keys are somehow on cooldown)
+    if ((keyCooldowns.get(currentKeyIndex) || 0) > Date.now()) {
+      const allOnCooldown = keys.every((_, idx) => (keyCooldowns.get(idx) || 0) > Date.now());
+      if (!allOnCooldown) {
+        console.warn(`[generateCinematicImage] Skipping key index ${currentKeyIndex} due to active cooldown.`);
+        currentKeyIndex = (currentKeyIndex + 1) % keys.length;
+        continue; // Skip without reducing retries
+      }
+    }
+
     const apiKey = keys[currentKeyIndex];
     const attempt = totalAttempts - retries + 1;
     const attemptStartedAt = Date.now();
@@ -146,7 +157,7 @@ export async function generateCinematicImage(
             }
           }
         }),
-        signal: AbortSignal.timeout(90000) // Timeout after 90 seconds to prevent hanging threads
+        signal: AbortSignal.timeout(60000) // Timeout after 60 seconds to prevent hanging threads
       });
 
       if (!response.ok) {
@@ -208,6 +219,11 @@ export async function generateCinematicImage(
       // Rotate to the next API key in the list
       const failedKeyIndex = currentKeyIndex;
       currentKeyIndex = (currentKeyIndex + 1) % keys.length;
+
+      if (isTransient) {
+        // Place the exhausted key on a 30-second cooldown
+        keyCooldowns.set(failedKeyIndex, Date.now() + 30000);
+      }
 
       if (isTransient && retries > 1) {
         const isFullCycle = attempt % keys.length === 0;
