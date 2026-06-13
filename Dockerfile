@@ -49,4 +49,4 @@ USER nextjs
 EXPOSE 3000
 
 # Start with PM2 Cluster Mode (automatically utilizes all 8 CPU cores)
-CMD ["pm2-runtime", "start", "server.js", "-i", "7", "--max-memory-restart", "3.5G"]
+CMD ["pm2-runtime", "start", "server.js", "-i", "7", "--max-memory-restart", "3500M"]
