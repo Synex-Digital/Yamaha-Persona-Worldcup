@@ -147,7 +147,8 @@ export async function generateCinematicImage(
           generationConfig: {
             responseModalities: ["IMAGE"],
             imageConfig: {
-              aspectRatio: process.env.AI_IMAGE_ASPECT_RATIO || "3:4"
+              aspectRatio: process.env.AI_IMAGE_ASPECT_RATIO || "3:4",
+              imageSize: process.env.AI_IMAGE_SIZE || "1K"
             }
           }
         }),

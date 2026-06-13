@@ -14,11 +14,13 @@
     "@aws-sdk/client-s3": "^3.1038.0",
     "@google/genai": "^2.2.0",
     "dotenv": "^17.4.2",
+    "image-size": "^2.0.2",
     "jose": "^6.2.2",
     "mysql2": "^3.22.3",
     "next": "^16.2.6",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "sharp": "^0.35.1",
     "zod": "^4.3.6"
   },
   "overrides": {

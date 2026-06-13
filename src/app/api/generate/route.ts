@@ -6,6 +6,20 @@ import { getApiMessages, getRequestLanguage } from '@/lib/i18n/api';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
 import { getAppSettings, getBooleanAppSetting } from '@/lib/server/app-settings';
+import sizeOf from 'image-size';
+import sharp from 'sharp';
+
+// Optimize Sharp for PM2 Cluster Mode (prevents 8 processes * 8 threads thread-starvation on the VPS)
+sharp.concurrency(1);
+
+function calculateImageInputTokens(width: number, height: number): number {
+  const BASE_TILE_COST = 258;
+  const TILE_SIZE = 768;
+  const tilesWide = Math.ceil(width / TILE_SIZE);
+  const tilesHigh = Math.ceil(height / TILE_SIZE);
+  const totalTiles = tilesWide * tilesHigh;
+  return totalTiles * BASE_TILE_COST;
+}
 
 async function getGenerationByHashId(hashId: string) {
   const generations = await query<any[]>(
@@ -176,10 +190,36 @@ export async function POST(req: Request) {
 
     // Convert photo to base64
     const arrayBuffer = await photo.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const originalBuffer = Buffer.from(arrayBuffer);
+    
+    // Resize and compress user photo to max 768px (1 tile)
+    const buffer = await sharp(originalBuffer)
+      .resize(768, 768, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 80 })
+      .toBuffer();
+
     const base64Image = buffer.toString('base64');
-    const mimeType = photo.type;
+    const mimeType = 'image/jpeg';
     mark('photo-encoded');
+
+    let userPhotoTokens = 258;
+    try {
+      const dim = sizeOf(buffer);
+      if (dim.width && dim.height) {
+        userPhotoTokens = calculateImageInputTokens(dim.width, dim.height);
+        
+        console.log('\n' + '-'.repeat(40));
+        console.log('    SHARP COMPRESSION REPORT (USER PHOTO)');
+        console.log('-'.repeat(40));
+        console.log(`Original Upload Size: ${(originalBuffer.length / 1024).toFixed(2)} KB`);
+        console.log(`Resized Sharp Size:   ${(buffer.length / 1024).toFixed(2)} KB`);
+        console.log(`Final Dimensions:     ${dim.width}x${dim.height}`);
+        console.log(`Calculated Tokens:    ${userPhotoTokens}`);
+        console.log('-'.repeat(40) + '\n');
+      }
+    } catch (e) {
+      console.warn('Failed to parse user image dimensions', e);
+    }
 
     let personaData;
     try {
@@ -273,6 +313,31 @@ export async function POST(req: Request) {
     // Fetch the cached bike reference image base64 bytes (takes 0ms on cache hits)
     const bikeRef = await getBikeImageBase64(selection.bike.image_url);
 
+    let bikePhotoTokens = 258;
+    if (bikeRef?.base64) {
+      try {
+        const originalBikeBuf = Buffer.from(bikeRef.base64, 'base64');
+        const bikeBuf = await sharp(originalBikeBuf)
+          .resize(768, 768, { fit: 'inside', withoutEnlargement: true })
+          .jpeg({ quality: 80 })
+          .toBuffer();
+
+        bikeRef.base64 = bikeBuf.toString('base64');
+        bikeRef.mimeType = 'image/jpeg';
+
+        const dim = sizeOf(bikeBuf);
+        if (dim.width && dim.height) {
+          bikePhotoTokens = calculateImageInputTokens(dim.width, dim.height);
+        }
+      } catch (e) {
+        console.warn('Failed to parse bike image dimensions', e);
+      }
+    } else {
+      bikePhotoTokens = 0;
+    }
+
+    const totalDynamicImageTokens = userPhotoTokens + bikePhotoTokens;
+
     let personaCopy = `Experience the thrill of the ride. You and the ${bikeModel} are a perfect match.`;
     let generatedImageUrl = null;
     let generationStatus = 'completed';
@@ -289,6 +354,14 @@ export async function POST(req: Request) {
       }
       if (combinedResult.optimizedPrompt) {
         optimizedPromptText = combinedResult.optimizedPrompt;
+
+        // The AI optimizer usually strips out the negative prompt.
+        // We must manually extract it from the original prompt and append it back.
+        const negativeBlockIndex = finalPrompt.indexOf('Negative prompt:');
+        if (negativeBlockIndex !== -1) {
+          const negativeBlock = finalPrompt.substring(negativeBlockIndex);
+          optimizedPromptText += ' ' + negativeBlock;
+        }
       }
       if (combinedResult.usage) {
         combinedUsage = combinedResult.usage;
@@ -323,24 +396,24 @@ export async function POST(req: Request) {
     }
 
     // Cost calculation & log output
-    const getRates = (modelName: string) => {
-      const normalized = modelName.toLowerCase();
-      if (normalized.includes('gemini-3-pro-image')) {
-        return { input: 2.00, output: 12.00 };
-      }
-      if (
-        normalized.includes('gemini-3.1-flash-image') ||
-        normalized.includes('gemini-3.1-flash') ||
-        normalized.includes('gemini-3-flash')
-      ) {
-        return { input: 0.50, output: 3.00 };
-      }
-      // Default to gemini-2.5-flash rates
-      return { input: 0.30, output: 2.50 };
+    const GEMINI_PRICING_PER_MILLION: Record<string, { input: number, output: number }> = {
+      "gemini-3.1-flash": { input: 0.50, output: 3.00 },
+      "gemini-3.1-flash-lite": { input: 0.25, output: 1.50 },
     };
 
-    const textRates = getRates(textModel);
-    const imageRates = getRates(imageModel);
+    const GEMINI_IMAGE_PRICING: Record<string, { input: number, output: number }> = {
+      "gemini-3.1-flash-image": { 
+        input: 0.50, 
+        output: 60.00 
+      },
+      "gemini-2.5-flash-image": { 
+        input: 0.50, 
+        output: 30.00 
+      }
+    };
+
+    const textRates = GEMINI_PRICING_PER_MILLION[textModel] || { input: 0.30, output: 2.50 };
+    const imageRates = GEMINI_IMAGE_PRICING[imageModel] || { input: 0.50, output: 60.00 };
 
     textCost = 0;
     imageCost = 0;
@@ -352,6 +425,10 @@ export async function POST(req: Request) {
     }
 
     if (imageUsage) {
+      // Reverse out the hardcoded 3*258 image tokens from the api response to get just the text
+      const textPromptTokensForImage = Math.max(0, imageUsage.promptTokenCount - (3 * 258)); 
+      imageUsage.promptTokenCount = textPromptTokensForImage + totalDynamicImageTokens;
+      
       const inputCost = (imageUsage.promptTokenCount / 1_000_000) * imageRates.input;
       const outputCost = (imageUsage.candidatesTokenCount / 1_000_000) * imageRates.output;
       imageCost = inputCost + outputCost;
